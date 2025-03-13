@@ -25,6 +25,7 @@
       "@components/*": ["./src/components/*"],
       "@lib/*": ["./src/lib/*"],
       "@hooks/*": ["./src/hooks/*"],
+      "@actions/*": ["./src/actions/*"],
       "@context/*": ["./src/context/*"]
     }
   },

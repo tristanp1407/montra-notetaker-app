@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@utils/supabase/server";
 
 export default async function ProjectsLayout({
@@ -13,9 +12,7 @@ export default async function ProjectsLayout({
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) {
-    redirect("/sign-in");
-  }
+  if (!session) redirect("/sign-in");
 
   return <>{children}</>;
 }
