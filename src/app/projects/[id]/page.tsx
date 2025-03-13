@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getProjectById } from "@lib/data/projects";
 import Editor from "@components/rich-text/editor";
 import TitleEditorWrapper from "@components/project-editor/project-editor-wrapper";
+import AudioRecorder from "@components/audio/audio-recorder";
 
 export default async function ProjectDetailPage({
   params,
@@ -54,18 +55,7 @@ export default async function ProjectDetailPage({
         {/* Right Panel Section */}
         <div className="flex flex-col w-72 border-l border-muted bg-background">
           <div className="flex items-center justify-between border-b px-4 py-2 text-sm font-medium">
-            <span>New Draft</span>
-            <button className="text-muted-foreground hover:text-foreground">
-              ✕
-            </button>
-          </div>
-          <div className="p-4 text-sm text-muted-foreground">
-            Click to start recording a voice memo
-          </div>
-          <div className="p-4 border-t mt-auto">
-            <button className="w-full text-sm bg-primary text-white rounded px-3 py-2 hover:bg-primary/90">
-              ⏺ Record Memo
-            </button>
+            <AudioRecorder />
           </div>
         </div>
       </div>

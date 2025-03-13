@@ -77,8 +77,11 @@ export default function Editor({
     <div className="flex flex-col h-full space-y-4">
       <EditorToolbar editor={editor} />
       <div className="flex-1 relative">
-        <div className="prose prose-sm sm:prose-base max-w-none h-full">
-          <EditorContent editor={editor} className="h-full" />
+        {/* Container with fixed 200px left/right margin */}
+        <div className="mx-[200px] h-full">
+          <div className="prose prose-sm sm:prose-base max-w-none h-full">
+            <EditorContent editor={editor} className="h-full" />
+          </div>
         </div>
       </div>
     </div>
