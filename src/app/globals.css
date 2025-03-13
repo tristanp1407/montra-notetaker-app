@@ -2,6 +2,38 @@
 
 @plugin "tailwindcss-animate";
 
+/* TipTap Placeholder Styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #94a3b8; /* slate-400 */
+  pointer-events: none;
+  height: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  opacity: 0.5;
+}
+
+/* Global CSS additions for TipTap rendered content */
+.ProseMirror h1 {
+  @apply text-3xl font-bold mb-4;
+}
+.ProseMirror h2 {
+  @apply text-2xl font-semibold mb-3;
+}
+.ProseMirror h3 {
+  @apply text-xl font-medium mb-2;
+}
+.ProseMirror ul {
+  @apply list-disc ml-6 mb-4;
+}
+.ProseMirror blockquote {
+  @apply border-l-4 pl-4 italic text-gray-500 mb-4;
+}
+.ProseMirror a {
+  @apply text-blue-600 underline;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
