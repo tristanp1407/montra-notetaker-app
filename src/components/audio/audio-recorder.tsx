@@ -1,12 +1,17 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
-
 import WaveformViewer from "./waveform-viewer";
 
-export default function AudioRecorder() {
+interface AudioRecorderProps {
+  onGenerate: (audioBlob: Blob) => void;
+}
+
+export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
   const [reset, setReset] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const waveformRef = useRef<{ playPause: () => void }>(null);
 
   const {
     status,
@@ -20,30 +25,42 @@ export default function AudioRecorder() {
     blobPropertyBag: { type: "audio/webm" },
   });
 
-  const handleRestart = useCallback(() => {
-    if (mediaBlobUrl) {
-      URL.revokeObjectURL(mediaBlobUrl);
+  const handlePlayPause = () => {
+    if (waveformRef.current) {
+      waveformRef.current.playPause();
+      setIsPlaying((prev) => !prev);
     }
-    // Temporarily unmount the recorder to reset its state
+  };
+
+  const handleGenerate = () => {
+    if (mediaBlobUrl) {
+      fetch(mediaBlobUrl)
+        .then((res) => res.blob())
+        .then((blob) => onGenerate(blob));
+    }
+  };
+
+  const handleRestart = useCallback(() => {
+    if (mediaBlobUrl) URL.revokeObjectURL(mediaBlobUrl);
     setReset(true);
+    setIsPlaying(false);
     setTimeout(() => {
       setReset(false);
       startRecording();
     }, 0);
-  }, [mediaBlobUrl]);
+  }, [mediaBlobUrl, startRecording]);
 
   if (reset) return null;
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Waveform Container - always visible */}
       <div className="relative w-[250px] h-20 bg-gray-100 border rounded overflow-hidden">
         {mediaBlobUrl ? (
-          <WaveformViewer audioUrl={mediaBlobUrl} />
+          <WaveformViewer audioUrl={mediaBlobUrl} ref={waveformRef} />
         ) : (
           <div className="w-full h-full" />
         )}
-        {/* Overlay for Recording state */}
+
         {status === "recording" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="flex items-center gap-2">
@@ -54,7 +71,7 @@ export default function AudioRecorder() {
             </div>
           </div>
         )}
-        {/* Overlay for Paused state */}
+
         {status === "paused" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="flex items-center gap-2">
@@ -65,7 +82,7 @@ export default function AudioRecorder() {
             </div>
           </div>
         )}
-        {/* Restart button overlay: shows when recording is finished */}
+
         {mediaBlobUrl && status !== "recording" && status !== "paused" && (
           <button
             onClick={handleRestart}
@@ -76,7 +93,6 @@ export default function AudioRecorder() {
         )}
       </div>
 
-      {/* Controls */}
       {status === "recording" && (
         <div className="flex gap-2">
           <button
@@ -93,6 +109,7 @@ export default function AudioRecorder() {
           </button>
         </div>
       )}
+
       {status === "paused" && (
         <div className="flex gap-2">
           <button
@@ -109,6 +126,7 @@ export default function AudioRecorder() {
           </button>
         </div>
       )}
+
       {status === "idle" && !mediaBlobUrl && (
         <button
           onClick={startRecording}
@@ -116,6 +134,23 @@ export default function AudioRecorder() {
         >
           Record
         </button>
+      )}
+
+      {mediaBlobUrl && status === "stopped" && (
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={handlePlayPause}
+            className="w-full px-4 py-2 bg-primary text-white rounded"
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+          <button
+            onClick={handleGenerate}
+            className="w-full px-4 py-2 bg-secondary text-foreground rounded"
+          >
+            Generate
+          </button>
+        </div>
       )}
     </div>
   );

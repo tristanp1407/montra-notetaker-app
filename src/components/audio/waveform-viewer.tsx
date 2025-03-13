@@ -1,44 +1,51 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import WaveSurfer from "wavesurfer.js";
 
-interface WaveformViewerProps {
-  audioUrl: string;
-}
+export type WaveformViewerHandle = {
+  playPause: () => void;
+};
 
-export default function WaveformViewer({ audioUrl }: WaveformViewerProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const wavesurferRef = useRef<WaveSurfer | null>(null);
+const WaveformViewer = forwardRef<WaveformViewerHandle, { audioUrl: string }>(
+  ({ audioUrl }, ref) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const waveSurferRef = useRef<WaveSurfer | null>(null);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    // Destroy any previous instance
-    if (wavesurferRef.current) wavesurferRef.current.destroy();
+    useEffect(() => {
+      if (!containerRef.current || !audioUrl) return;
 
-    const ws = WaveSurfer.create({
-      container: containerRef.current,
-      waveColor: "rgb(200, 0, 200)",
-      progressColor: "rgb(100, 0, 100)",
-      barWidth: 4,
-      barGap: 1,
-      barRadius: 2,
-      height: 80,
-      width: 250,
-    });
-    wavesurferRef.current = ws;
-    ws.load(audioUrl);
+      waveSurferRef.current = WaveSurfer.create({
+        container: containerRef.current,
+        waveColor: "rgb(200, 0, 200)",
+        progressColor: "rgb(100, 0, 100)",
+        barWidth: 2,
+        barGap: 1,
+        barRadius: 2,
+        height: 80,
+        url: audioUrl,
+      });
 
-    return () => {
-      ws.destroy();
-    };
-  }, [audioUrl]);
+      return () => {
+        waveSurferRef.current?.destroy();
+      };
+    }, [audioUrl]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="w-full h-20 bg-gray-100 border rounded overflow-hidden"
-      style={{ minHeight: "80px" }}
-    />
-  );
-}
+    useImperativeHandle(ref, () => ({
+      playPause: () => {
+        waveSurferRef.current?.playPause();
+      },
+    }));
+
+    return <div className="w-full h-full" ref={containerRef} />;
+  }
+);
+
+WaveformViewer.displayName = "WaveformViewer";
+
+export default WaveformViewer;
