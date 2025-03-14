@@ -1,6 +1,8 @@
 # Montra AI Notetaker
 
-Welcome to **Montra AI Notetaker**! 🚀 This technical assessment showcases my skills in creating an engaging, functional, and AI-driven note-taking experience using the latest technologies.
+Hey there! 👋 Welcome to **Montra AI Notetaker**! I really enjoyed building this project—it was super challenging, but incredibly rewarding. It's not perfect, but I thinking a good effort for 48 😁 I hope you enjoy exploring the app as much as I did developing it!
+
+🌟 You can preview the live app right here: [Montra AI Notetaker Preview](https://montra-notetaker-app.vercel.app/)
 
 ## 🌟 Project Overview
 
