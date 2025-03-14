@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+
 import Editor from "@components/rich-text/editor";
 import AudioRecorder from "@components/audio/audio-recorder";
+import TranscriptBox from "@components/project-editor/transcript-box";
+import { transcribeAudio } from "@lib/transcription/transcribe-audio";
 
 interface ProjectEditorClientProps {
   projectId: string;
@@ -14,31 +17,19 @@ export default function ProjectEditorClient({
   initialContent,
 }: ProjectEditorClientProps) {
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcript, setTranscript] = useState<string | null>(null);
 
   const handleTranscription = useCallback(async (audioBlob: Blob) => {
-    try {
-      setIsTranscribing(true);
+    setIsTranscribing(true);
+    const transcriptText = await transcribeAudio(audioBlob);
 
-      const formData = new FormData();
-      formData.append("audio", audioBlob);
-
-      const response = await fetch("/api/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (data?.transcript) {
-        window.alert("Transcript: " + data.transcript);
-        // In the future, pass to Claude handler or update editor content
-      }
-    } catch (err) {
-      console.error("Transcription failed", err);
+    if (transcriptText) {
+      setTranscript(transcriptText);
+    } else {
       window.alert("Transcription failed. Please try again.");
-    } finally {
-      setIsTranscribing(false);
     }
+
+    setIsTranscribing(false);
   }, []);
 
   return (
@@ -62,6 +53,7 @@ export default function ProjectEditorClient({
 
           <div className="flex flex-col w-72 border-l border-muted bg-background p-4">
             <AudioRecorder onGenerate={handleTranscription} />
+            {transcript && <TranscriptBox transcript={transcript} />}
           </div>
         </>
       )}
