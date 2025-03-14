@@ -22,6 +22,9 @@ import ListItem from "@tiptap/extension-list-item";
 import Blockquote from "@tiptap/extension-blockquote";
 import Placeholder from "@tiptap/extension-placeholder";
 import OrderedList from "@tiptap/extension-ordered-list";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import Highlight from "@tiptap/extension-highlight";
 import { updateProjectContent } from "@actions/project/updateContent";
 
 import EditorToolbar from "./editor-toolbar";
@@ -54,6 +57,9 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         Document,
         Paragraph,
         Text,
+        Underline,
+        Highlight.configure({ multicolor: false }),
+        TextAlign.configure({ types: ["heading", "paragraph"] }),
         OrderedList,
         Heading.configure({ levels: [1, 2, 3] }),
         Bold,
@@ -68,9 +74,9 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         ListItem,
         Blockquote,
         Placeholder.configure({
-          placeholder: "Start typing your note here...",
+          placeholder: "Start typing here...",
           emptyEditorClass:
-            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-5xl ",
+            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-3xl ",
         }),
       ],
       content: content ?? { type: "doc", content: [] },
@@ -143,7 +149,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         <EditorToolbar editor={editor} />
         <div className="flex-1 relative">
           <div className="h-full max-w-[700px] mx-auto">
-            <div className="prose prose-sm sm:prose-base max-w-none h-full">
+            <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
               <EditorContent editor={editor} className="h-full" />
             </div>
           </div>

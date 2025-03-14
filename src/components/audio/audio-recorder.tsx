@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import WaveformViewer from "./waveform-viewer";
+import { Mic } from "lucide-react";
 
 interface AudioRecorderProps {
   onGenerate: (audioBlob: Blob) => void;
@@ -130,9 +131,10 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
       {status === "idle" && !mediaBlobUrl && (
         <button
           onClick={startRecording}
-          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm"
+          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm flex items-center justify-center gap-2"
         >
-          Record
+          <Mic className="h-4 w-4 " />
+          Start Recording
         </button>
       )}
 

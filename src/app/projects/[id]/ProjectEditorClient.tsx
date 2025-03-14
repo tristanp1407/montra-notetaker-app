@@ -49,10 +49,15 @@ export default function ProjectEditorClient({
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <div className="flex-1 overflow-auto p-6 relative">
+      <div className="flex-1 overflow-auto relative">
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
-            <div className="text-xl font-bold">Loading...</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10 border border-gray-300 border-white">
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 bg-gray-400 border-1 border-white rounded-full animate-pulse mb-2"></div>
+              <div className="text-sm text-gray-400">
+                Generating new draft...
+              </div>
+            </div>
           </div>
         )}
         <Editor
@@ -62,9 +67,14 @@ export default function ProjectEditorClient({
         />
       </div>
 
-      <div className="flex flex-col w-72 border-l border-muted bg-background p-4 space-y-4">
-        <AudioRecorder onGenerate={handleTranscription} />
-        {transcript && <TranscriptBox transcript={transcript} />}
+      <div className="flex flex-col w-72 border-l border-muted bg-background ">
+        <div className="h-10 border-b-1 p-0 mb-5 flex items-center pl-4">
+          <p>New Draft</p>
+        </div>
+        <div className="p-4">
+          <AudioRecorder onGenerate={handleTranscription} />
+          {transcript && <TranscriptBox transcript={transcript} />}
+        </div>
       </div>
     </div>
   );

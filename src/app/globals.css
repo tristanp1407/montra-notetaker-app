@@ -16,7 +16,7 @@
 
 /* Global TipTap Content Styling */
 .ProseMirror {
-  @apply text-base leading-relaxed text-foreground space-y-4;
+  @apply text-base leading-relaxed text-foreground space-y-4 h-full;
 }
 
 .ProseMirror h1 {
