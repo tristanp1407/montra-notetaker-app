@@ -22,7 +22,7 @@ export function SignInForm({
   ...props
 }: SignInFormProps) {
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className={cn("w-[400px] flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Sign in</CardTitle>

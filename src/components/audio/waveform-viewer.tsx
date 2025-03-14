@@ -22,8 +22,8 @@ const WaveformViewer = forwardRef<WaveformViewerHandle, { audioUrl: string }>(
 
       waveSurferRef.current = WaveSurfer.create({
         container: containerRef.current,
-        waveColor: "rgb(200, 0, 200)",
-        progressColor: "rgb(100, 0, 100)",
+        waveColor: "rgb(32, 96, 253)",
+        progressColor: "rgb(16, 39, 95)",
         barWidth: 2,
         barGap: 1,
         barRadius: 2,

@@ -26,12 +26,12 @@ import { updateProjectContent } from "@actions/project/updateContent";
 
 import EditorToolbar from "./editor-toolbar";
 
-// Our tiptap editor handle (ref) type
+// Extended handle interface
 export type EditorHandle = {
-  // For leftover text insertion, if you want to keep that
   appendChunk: (chunk: string) => void;
-  // For replacing entire content with a TipTap JSON doc
   replaceContent: (jsonDoc: any) => void;
+  hasContent: () => boolean;
+  getJSON: () => any;
 };
 
 interface EditorProps {
@@ -42,7 +42,6 @@ interface EditorProps {
 
 const Editor = forwardRef<EditorHandle, EditorProps>(
   ({ content, projectId, editable = true }, ref) => {
-    // Debounce project content updates to avoid over-posting
     const debouncedUpdate = useCallback(
       debounce(async (json: any) => {
         await updateProjectContent(projectId, json);
@@ -50,7 +49,6 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       [projectId]
     );
 
-    // Initialize the tiptap editor
     const editor = useEditor({
       extensions: [
         Document,
@@ -82,25 +80,20 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         console.log("[Editor] Editor initialized.");
       },
       onUpdate: ({ editor }) => {
-        // Log current HTML if you want debugging
         console.log(
           "[Editor] Content updated. (HTML preview):",
           editor.getHTML()
         );
-        // Save Tiptap JSON doc to server (debounced)
         debouncedUpdate(editor.getJSON());
       },
     });
 
-    // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
       appendChunk: (chunk: string) => {
         if (!editor) {
-          console.warn("[Editor] Editor not ready yet, skip chunk:", chunk);
+          console.warn("[Editor] Editor not ready yet, skipping append.");
           return;
         }
-        // Insert plain text chunk
-        console.log("[Editor] appendChunk =>", chunk);
         editor
           .chain()
           .focus()
@@ -109,22 +102,38 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       },
       replaceContent: (jsonDoc: any) => {
         if (!editor) {
-          console.warn("[Editor] Editor not ready yet, skip doc:", jsonDoc);
+          console.warn("[Editor] Editor not ready yet, skipping replace.");
           return;
         }
         console.log("[Editor] replaceContent =>", jsonDoc);
-
-        // Set new content into editor
         editor.commands.setContent(jsonDoc, false);
-
         updateProjectContent(projectId, jsonDoc)
           .then(() =>
             console.log("[Editor] Project content saved after generation.")
           )
           .catch((err) =>
-            console.error("[Editor] Failed to save generated note:", err)
+            console.error("[Editor] Failed to save content:", err)
           );
       },
+      hasContent: () => {
+        if (!editor) return false;
+        const json = editor.getJSON();
+        if (!json || !json.content || json.content.length === 0) return false;
+        // If there is exactly one node and it is a paragraph, ensure it's not empty.
+        if (json.content.length === 1 && json.content[0].type === "paragraph") {
+          const paragraph = json.content[0];
+          if (!paragraph.content || paragraph.content.length === 0)
+            return false;
+          const allEmpty = paragraph.content.every(
+            (child: any) =>
+              child.type === "text" &&
+              (!child.text || child.text.trim().length === 0)
+          );
+          if (allEmpty) return false;
+        }
+        return true;
+      },
+      getJSON: () => editor?.getJSON?.(),
     }));
 
     if (!editor) return null;
@@ -133,7 +142,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       <div className="flex flex-col h-full space-y-4">
         <EditorToolbar editor={editor} />
         <div className="flex-1 relative">
-          <div className=" h-full max-w-[700px] mx-auto">
+          <div className="h-full max-w-[700px] mx-auto">
             <div className="prose prose-sm sm:prose-base max-w-none h-full">
               <EditorContent editor={editor} className="h-full" />
             </div>

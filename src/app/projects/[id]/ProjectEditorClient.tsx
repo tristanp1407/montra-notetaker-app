@@ -6,70 +6,45 @@ import AudioRecorder from "@components/audio/audio-recorder";
 import TranscriptBox from "@components/project-editor/transcript-box";
 import { transcribeAudio } from "@lib/transcription/transcribe-audio";
 import { generateNote } from "@lib/note-generation/generate-note";
+import { mergeDraft } from "@lib/note-generation/merge-draft";
+
+interface ProjectEditorClientProps {
+  projectId: string;
+  initialContent: any;
+}
 
 export default function ProjectEditorClient({
   projectId,
   initialContent,
-}: {
-  projectId: string;
-  initialContent: any;
-}) {
+}: ProjectEditorClientProps) {
   const editorRef = useRef<EditorHandle>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTranscription = async (audioBlob: Blob) => {
-    console.log("[ProjectEditorClient] Starting transcription...");
-    const transcriptText = await transcribeAudio(audioBlob);
-    if (!transcriptText) {
-      alert("Transcription failed");
-      return;
-    }
-    setTranscript(transcriptText);
-    console.log(
-      "[ProjectEditorClient] Transcription complete:",
-      transcriptText
-    );
-
     setIsLoading(true);
     try {
-      await generateNote(
-        transcriptText,
-        (tiptapDoc: any) => {
-          // Replace the editor content with the complete TipTap document.
-          editorRef.current?.replaceContent(tiptapDoc);
-        },
-        (tiptapDoc: any) => {
-          console.log("[ProjectEditorClient] Final JSON received:", tiptapDoc);
-        }
-      );
-    } catch (err) {
-      console.error("Error generating note:", err);
-    }
-    setIsLoading(false);
-  };
+      const result = await transcribeAudio(audioBlob);
+      if (!result) throw new Error("Transcription failed");
 
-  const handleManualGenerateNote = async () => {
-    if (!transcript) return;
-    console.log("[ProjectEditorClient] Generating note manually...");
-    setIsLoading(true);
-    try {
-      await generateNote(
-        transcript,
-        (tiptapDoc: any) => {
-          editorRef.current?.replaceContent(tiptapDoc);
-        },
-        (tiptapDoc: any) => {
-          console.log(
-            "[ProjectEditorClient] Final JSON received (manual):",
-            tiptapDoc
-          );
-        }
-      );
+      setTranscript(result);
+
+      const editorHasContent = editorRef.current?.hasContent?.() ?? false;
+      const currentDraft = editorRef.current?.getJSON?.();
+
+      const onUpdate = (doc: any) => editorRef.current?.replaceContent(doc);
+
+      if (editorHasContent && currentDraft) {
+        await mergeDraft(result, currentDraft, onUpdate, onUpdate);
+      } else {
+        await generateNote(result, onUpdate, onUpdate);
+      }
     } catch (err) {
-      console.error("Error generating note manually:", err);
+      console.error("[ProjectEditorClient] Error:", err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -86,17 +61,10 @@ export default function ProjectEditorClient({
           content={initialContent}
         />
       </div>
+
       <div className="flex flex-col w-72 border-l border-muted bg-background p-4 space-y-4">
         <AudioRecorder onGenerate={handleTranscription} />
         {transcript && <TranscriptBox transcript={transcript} />}
-        {transcript && (
-          <button
-            onClick={handleManualGenerateNote}
-            className="mt-2 w-full text-sm font-medium py-2 px-3 rounded-xl border border-border hover:bg-muted transition"
-          >
-            🔁 Generate Note from Transcript
-          </button>
-        )}
       </div>
     </div>
   );
