@@ -4,6 +4,7 @@ import { FormEvent, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { SignInForm } from "@components/blocks/SignInForm";
 import { signin } from "../actions";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -16,9 +17,9 @@ export default function SignInPage() {
     startTransition(async () => {
       const result = await signin(formData);
       if (result.error) {
-        // toast.error(result.error);
+        toast.error(result.error);
       } else {
-        // toast.success("Signed in successfully");
+        toast.success("Signed in successfully");
         router.push("/account");
       }
     });
