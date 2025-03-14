@@ -5,6 +5,16 @@ import { createClient } from "@utils/supabase/server";
 export async function createProject() {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error("[createProject] Authentication error:", userError);
+    return { error: "User not authenticated." };
+  }
+
   const emptyDoc = {
     type: "doc",
     content: [
@@ -20,6 +30,7 @@ export async function createProject() {
       {
         title: "Untitled Project",
         content: emptyDoc,
+        user_id: user.id,
       },
     ])
     .select("id")
