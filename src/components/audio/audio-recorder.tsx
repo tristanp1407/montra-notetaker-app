@@ -3,7 +3,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import WaveformViewer from "./waveform-viewer";
-import { Mic } from "lucide-react";
+import { Mic, Pause, Play, StopCircle, RotateCcw, Forward } from "lucide-react";
 
 interface AudioRecorderProps {
   onGenerate: (audioBlob: Blob) => void;
@@ -87,8 +87,9 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
         {mediaBlobUrl && status !== "recording" && status !== "paused" && (
           <button
             onClick={handleRestart}
-            className="absolute top-1 right-1 px-2 py-1 text-xs border rounded bg-white hover:bg-gray-100 z-10"
+            className="absolute top-1 right-1 px-2 py-1 text-xs border rounded bg-white hover:bg-gray-100 z-10 flex items-center gap-1"
           >
+            <RotateCcw className="w-3 h-3" />
             Restart
           </button>
         )}
@@ -98,14 +99,16 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
         <div className="flex gap-2">
           <button
             onClick={pauseRecording}
-            className="flex-1 px-4 py-2 bg-primary text-white rounded"
+            className="flex-1 px-4 py-2 bg-primary text-white rounded flex items-center justify-center gap-2"
           >
+            <Pause className="w-4 h-4" />
             Pause
           </button>
           <button
             onClick={stopRecording}
-            className="flex-1 px-4 py-2 bg-secondary text-foreground rounded"
+            className="flex-1 px-4 py-2 bg-secondary text-foreground rounded flex items-center justify-center gap-2"
           >
+            <StopCircle className="w-4 h-4" />
             Stop
           </button>
         </div>
@@ -115,14 +118,16 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
         <div className="flex gap-2">
           <button
             onClick={resumeRecording}
-            className="flex-1 px-4 py-2 bg-primary text-white rounded"
+            className="flex-1 px-4 py-2 bg-primary text-white rounded flex items-center justify-center gap-2"
           >
+            <Play className="w-4 h-4" />
             Resume
           </button>
           <button
             onClick={stopRecording}
-            className="flex-1 px-4 py-2 bg-secondary text-foreground rounded"
+            className="flex-1 px-4 py-2 bg-secondary text-foreground rounded flex items-center justify-center gap-2"
           >
+            <StopCircle className="w-4 h-4" />
             Stop
           </button>
         </div>
@@ -133,7 +138,7 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
           onClick={startRecording}
           className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm flex items-center justify-center gap-2"
         >
-          <Mic className="h-4 w-4 " />
+          <Mic className="h-4 w-4" />
           Start Recording
         </button>
       )}
@@ -142,9 +147,19 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
         <div className="flex flex-col gap-2">
           <button
             onClick={handlePlayPause}
-            className="w-full px-4 py-2 bg-primary text-white rounded"
+            className="w-full px-4 py-2 bg-primary text-white rounded flex items-center justify-center gap-2"
           >
-            {isPlaying ? "Pause" : "Play"}
+            {isPlaying ? (
+              <>
+                <Pause className="w-4 h-4" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                Play
+              </>
+            )}
           </button>
           <button
             onClick={handleGenerate}
