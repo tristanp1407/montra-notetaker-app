@@ -5,9 +5,23 @@ import { createClient } from "@utils/supabase/server";
 export async function createProject() {
   const supabase = await createClient();
 
+  const emptyDoc = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+      },
+    ],
+  };
+
   const { data, error } = await supabase
     .from("projects")
-    .insert([{ title: "Untitled Project" }])
+    .insert([
+      {
+        title: "Untitled Project",
+        content: emptyDoc,
+      },
+    ])
     .select("id")
     .single();
 
