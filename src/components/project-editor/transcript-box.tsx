@@ -18,7 +18,7 @@ export default function TranscriptBox({ transcript }: TranscriptBoxProps) {
   return (
     <div className="mt-4">
       <h4 className="font-semibold text-sm mb-1">Transcript</h4>
-      <div className="border rounded p-2 text-sm bg-muted text-muted-foreground max-h-[200px] min-h-[50px] overflow-y-auto whitespace-pre-line">
+      <div className="border rounded p-2 text-sm bg-muted text-muted-foreground max-h-[200px] min-h-[100px] overflow-y-auto whitespace-pre-line">
         {transcript}
       </div>
       <button

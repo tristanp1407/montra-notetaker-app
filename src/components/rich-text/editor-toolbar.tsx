@@ -1,22 +1,23 @@
 "use client";
 
-import { Editor } from "@tiptap/react";
+import type { Editor as TiptapEditor } from "@tiptap/react";
 
 interface EditorToolbarProps {
-  editor: Editor | null;
+  editor: TiptapEditor | null;
 }
 
 export default function EditorToolbar({ editor }: EditorToolbarProps) {
   if (!editor) return null;
 
-  // Helper function to build button classNames with fixed border to avoid layout shift
+  // Helper class builder
   const btnClass = (active: boolean) =>
     `p-2 rounded border ${
       active ? "border-gray-400 bg-muted" : "border-transparent"
     }`;
 
   return (
-    <div className="flex justify-center gap-2">
+    <div className="flex justify-center gap-2 flex-wrap">
+      {/* Bold */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -24,6 +25,8 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <span className="font-bold">𝗕</span>
       </button>
+
+      {/* Italic */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -31,6 +34,8 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <span className="italic">𝑰</span>
       </button>
+
+      {/* Strike */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleStrike().run()}
@@ -38,41 +43,53 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <span className="line-through">S</span>
       </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={btnClass(editor.isActive("heading", { level: 1 }))}
-      >
-        <span>H1</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={btnClass(editor.isActive("heading", { level: 2 }))}
-      >
-        <span>H2</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={btnClass(editor.isActive("heading", { level: 3 }))}
-      >
-        <span>H3</span>
-      </button>
+
+      {/* Headings */}
+      {[1, 2, 3].map((level) => (
+        <button
+          key={level}
+          type="button"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleHeading({ level: level as 1 | 2 | 3 })
+              .run()
+          }
+          className={btnClass(editor.isActive("heading", { level }))}
+        >
+          H{level}
+        </button>
+      ))}
+
+      {/* Bullet list */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={btnClass(editor.isActive("bulletList"))}
       >
-        <span>•</span>
+        •
       </button>
+
+      {/* ✅ Ordered list */}
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().toggleOrderedList?.().run()}
+        className={btnClass(editor.isActive("orderedList"))}
+      >
+        1.
+      </button>
+
+      {/* Blockquote */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         className={btnClass(editor.isActive("blockquote"))}
       >
-        <span>❝</span>
+        ❝
       </button>
+
+      {/* Link */}
       <button
         type="button"
         onClick={() => {
@@ -88,14 +105,16 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
         }}
         className={btnClass(editor.isActive("link"))}
       >
-        <span>🔗</span>
+        🔗
       </button>
+
+      {/* Unlink */}
       <button
         type="button"
         onClick={() => editor.chain().focus().unsetLink().run()}
         className="p-2 rounded border border-transparent"
       >
-        <span>❌</span>
+        ❌
       </button>
     </div>
   );

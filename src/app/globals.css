@@ -14,27 +14,69 @@
   opacity: 0.5;
 }
 
-/* Global CSS additions for TipTap rendered content */
+/* Global TipTap Content Styling */
+.ProseMirror {
+  @apply text-base leading-relaxed text-foreground space-y-4;
+}
+
 .ProseMirror h1 {
   @apply text-3xl font-bold mb-4;
 }
+
 .ProseMirror h2 {
   @apply text-2xl font-semibold mb-3;
 }
+
 .ProseMirror h3 {
   @apply text-xl font-medium mb-2;
 }
+
+.ProseMirror p {
+  @apply mb-4;
+}
+
 .ProseMirror ul {
   @apply list-disc ml-6 mb-4;
 }
+
+.ProseMirror ol {
+  @apply list-decimal ml-6 mb-4;
+}
+
+.ProseMirror li {
+  @apply mb-1;
+}
+
 .ProseMirror blockquote {
-  @apply border-l-4 pl-4 italic text-gray-500 mb-4;
+  @apply border-l-4 border-muted pl-4 italic text-muted-foreground mb-4;
 }
+
+.ProseMirror strong {
+  @apply font-semibold text-foreground;
+}
+
+.ProseMirror em {
+  @apply italic text-foreground;
+}
+
 .ProseMirror a {
-  @apply text-blue-600 underline;
+  @apply text-blue-600 underline underline-offset-2 hover:text-blue-800 transition;
 }
+
 .ProseMirror:focus {
   outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-of-type::before {
+  @apply text-gray-400;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror > *:last-child {
+  @apply mb-0;
 }
 
 @custom-variant dark (&:is(.dark *));
