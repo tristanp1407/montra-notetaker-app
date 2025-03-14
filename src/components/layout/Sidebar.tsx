@@ -9,7 +9,7 @@ export function Sidebar() {
         <div className="bg-teal-400 text-primary-foreground rounded-lg w-8 h-8 flex items-center justify-center">
           <User className="w-4 h-4" />
         </div>
-        <span className="text-sm font-medium">Montra Notetake</span>
+        <span className="text-sm font-medium">Montra Notetaker</span>
       </div>
 
       {/* Full-Width Divider */}

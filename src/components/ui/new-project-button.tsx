@@ -23,7 +23,12 @@ export function NewProjectButton() {
   };
 
   return (
-    <Button size="sm" onClick={handleCreate} disabled={isPending}>
+    <Button
+      size="sm"
+      onClick={handleCreate}
+      disabled={isPending}
+      className="cursor-pointer"
+    >
       {isPending ? "Creating..." : "+ New Project"}
     </Button>
   );
