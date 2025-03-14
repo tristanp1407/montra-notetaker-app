@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Montra AI Notetaker
 
-## Getting Started
+Welcome to **Montra AI Notetaker**! 🚀 This technical assessment showcases my skills in creating an engaging, functional, and AI-driven note-taking experience using the latest technologies.
 
-First, run the development server:
+## 🌟 Project Overview
+
+Montra AI Notetaker enables users to effortlessly create, edit, and manage notes through intuitive text and voice interactions, enhanced by AI-powered transcription and content generation.
+
+## 🚀 Tech Stack
+
+### Frontend
+
+- **Next.js**
+- **React**
+
+### Backend
+
+- **TypeScript**
+
+### Database & Authentication
+
+- **Supabase**
+
+### AI & Transcription APIs
+
+- **Anthropic AI (Claude Sonnet 3.7)**
+- **Deepgram**
+
+### Deployment
+
+- **Vercel**
+
+### Rich Text Editor
+
+- **TipTap**
+
+## 📌 Core Functionalities
+
+- **User Authentication**: Secure sign-up and login powered by Supabase.
+- **Project Management**: Library page displaying user-created notes sorted by recent edits.
+- **AI Note Generation**: Real-time transcription and AI-enhanced note creation using Anthropic AI.
+- **Audio Recording**: Seamless audio recording experience powered by `react-media-recorder` and intuitive waveform visualization via `wavesurfer.js`.
+- **Rich Text Editing**: Smooth editing and automatic database-saving with TipTap.
+- **Live Title Editing**: Real-time updates and synchronization to enhance productivity.
+- **Project Deletion**: Conveniently manage and delete notes as needed.
+
+## 🚧 Potential Improvements
+
+With additional time, I would further enhance the project by:
+
+- Improving logic around AI note generation for increased stability and predictability.
+- Refining loading states and overall UI transitions for smoother navigation.
+- Incorporating exact icons directly from Figma designs (a library was used temporarily to streamline development).
+- Achieving an even closer pixel-perfect UI match, prioritizing the remaining aspects of design fidelity.
+
+## 🛠️ How to Run the Project
+
+### Prerequisites
+
+Make sure you have Node.js and npm installed.
+
+### Installation & Running
 
 ```bash
+# Clone the repository
+git clone <your_repository_url>
+
+# Navigate to the project folder
+cd montra-ai-notetaker
+
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Your app will be available at [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Thanks for reviewing my project! I'm excited about the potential of Montra AI Notetaker and look forward to your feedback.
