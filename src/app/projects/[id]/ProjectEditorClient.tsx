@@ -5,8 +5,7 @@ import Editor, { EditorHandle } from "@components/rich-text/editor";
 import AudioRecorder from "@components/audio/audio-recorder";
 import TranscriptBox from "@components/project-editor/transcript-box";
 import { transcribeAudio } from "@lib/transcription/transcribe-audio";
-// Updated import from the new code that streams TipTap JSON
-import { streamGenerateNote } from "@lib/note-generation/generate-note";
+import { generateNote } from "@lib/note-generation/generate-note";
 
 export default function ProjectEditorClient({
   projectId,
@@ -17,75 +16,79 @@ export default function ProjectEditorClient({
 }) {
   const editorRef = useRef<EditorHandle>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
-
-  // Example: track if streaming is happening
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTranscription = async (audioBlob: Blob) => {
-    console.log("[ProjectEditorClient] Start transcription...");
+    console.log("[ProjectEditorClient] Starting transcription...");
     const transcriptText = await transcribeAudio(audioBlob);
-
     if (!transcriptText) {
       alert("Transcription failed");
       return;
     }
-
     setTranscript(transcriptText);
     console.log(
-      "[ProjectEditorClient] Transcription complete =>",
+      "[ProjectEditorClient] Transcription complete:",
       transcriptText
     );
 
-    setIsStreaming(true);
-    // stream JSON doc from server
-    await streamGenerateNote(transcriptText, (jsonDoc) => {
-      console.log("[ProjectEditorClient] Received TipTap JSON doc:", jsonDoc);
-      // replace entire editor content with new doc
-      editorRef.current?.replaceContent(jsonDoc);
-    });
-    setIsStreaming(false);
+    setIsLoading(true);
+    try {
+      await generateNote(
+        transcriptText,
+        (tiptapDoc: any) => {
+          // Replace the editor content with the complete TipTap document.
+          editorRef.current?.replaceContent(tiptapDoc);
+        },
+        (tiptapDoc: any) => {
+          console.log("[ProjectEditorClient] Final JSON received:", tiptapDoc);
+        }
+      );
+    } catch (err) {
+      console.error("Error generating note:", err);
+    }
+    setIsLoading(false);
   };
 
   const handleManualGenerateNote = async () => {
     if (!transcript) return;
-    console.log(
-      "[ProjectEditorClient] Manually generating note from transcript..."
-    );
-
-    setIsStreaming(true);
-    await streamGenerateNote(transcript, (jsonDoc) => {
-      console.log(
-        "[ProjectEditorClient] Received TipTap JSON doc (manual):",
-        jsonDoc
+    console.log("[ProjectEditorClient] Generating note manually...");
+    setIsLoading(true);
+    try {
+      await generateNote(
+        transcript,
+        (tiptapDoc: any) => {
+          editorRef.current?.replaceContent(tiptapDoc);
+        },
+        (tiptapDoc: any) => {
+          console.log(
+            "[ProjectEditorClient] Final JSON received (manual):",
+            tiptapDoc
+          );
+        }
       );
-      editorRef.current?.replaceContent(jsonDoc);
-    });
-    setIsStreaming(false);
+    } catch (err) {
+      console.error("Error generating note manually:", err);
+    }
+    setIsLoading(false);
   };
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-6 relative">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+            <div className="text-xl font-bold">Loading...</div>
+          </div>
+        )}
         <Editor
           ref={editorRef}
           projectId={projectId}
           content={initialContent}
         />
-
-        {/* If you'd like a subtle streaming indicator */}
-        {isStreaming && (
-          <div className="mt-4 text-xs text-muted-foreground animate-pulse">
-            ⏳ Streaming structured note into editor...
-          </div>
-        )}
       </div>
-
       <div className="flex flex-col w-72 border-l border-muted bg-background p-4 space-y-4">
         <AudioRecorder onGenerate={handleTranscription} />
-
         {transcript && <TranscriptBox transcript={transcript} />}
-
-        {/* TEMPORARY NOTE GENERATION BUTTON */}
         {transcript && (
           <button
             onClick={handleManualGenerateNote}

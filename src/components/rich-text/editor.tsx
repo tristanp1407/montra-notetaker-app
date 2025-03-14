@@ -77,6 +77,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       ],
       content: content ?? { type: "doc", content: [] },
       editable,
+      immediatelyRender: false,
       onCreate: () => {
         console.log("[Editor] Editor initialized.");
       },
@@ -111,9 +112,18 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
           console.warn("[Editor] Editor not ready yet, skip doc:", jsonDoc);
           return;
         }
-        // Replace entire content with the provided JSON doc
         console.log("[Editor] replaceContent =>", jsonDoc);
+
+        // Set new content into editor
         editor.commands.setContent(jsonDoc, false);
+
+        updateProjectContent(projectId, jsonDoc)
+          .then(() =>
+            console.log("[Editor] Project content saved after generation.")
+          )
+          .catch((err) =>
+            console.error("[Editor] Failed to save generated note:", err)
+          );
       },
     }));
 
