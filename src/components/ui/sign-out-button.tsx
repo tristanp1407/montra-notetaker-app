@@ -7,7 +7,7 @@ export function SignOutButton() {
   return (
     <button
       onClick={() => signOut()}
-      className="flex items-center gap-2 text-muted-foreground hover:underline"
+      className="flex items-center gap-2 text-muted-foreground hover:underline cursor-pointer"
     >
       <MessageSquare className="w-4 h-4" />
       Sign out
