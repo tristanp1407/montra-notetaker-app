@@ -3,13 +3,17 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import WaveformViewer from "./waveform-viewer";
-import { Mic, Pause, Play, StopCircle, RotateCcw, Forward } from "lucide-react";
+import { Mic, Pause, Play, StopCircle, RotateCcw, Loader } from "lucide-react";
 
 interface AudioRecorderProps {
   onGenerate: (audioBlob: Blob) => void;
+  isLoading?: boolean;
 }
 
-export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
+export default function AudioRecorder({
+  onGenerate,
+  isLoading = false,
+}: AudioRecorderProps) {
   const [reset, setReset] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const waveformRef = useRef<{ playPause: () => void }>(null);
@@ -34,7 +38,7 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
   };
 
   const handleGenerate = () => {
-    if (mediaBlobUrl) {
+    if (mediaBlobUrl && !isLoading) {
       fetch(mediaBlobUrl)
         .then((res) => res.blob())
         .then((blob) => onGenerate(blob));
@@ -163,9 +167,17 @@ export default function AudioRecorder({ onGenerate }: AudioRecorderProps) {
           </button>
           <button
             onClick={handleGenerate}
-            className="w-full px-4 py-2 bg-secondary text-foreground rounded"
+            disabled={isLoading}
+            className="w-full px-4 py-2 bg-secondary text-foreground rounded flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Generate
+            {isLoading ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              "Generate"
+            )}
           </button>
         </div>
       )}

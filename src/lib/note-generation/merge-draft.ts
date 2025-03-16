@@ -1,9 +1,8 @@
-// lib/note-generation/merge-draft.ts
 export async function mergeDraft(
   input: string,
   existingDraft: any,
-  onPartialJson: (doc: any) => void,
-  onFinalJson?: (doc: any) => void,
+  onPartialHtml: (doc: any) => void,
+  onFinalHtml?: (doc: any) => void,
   dictionary: string = ""
 ) {
   try {
@@ -16,13 +15,22 @@ export async function mergeDraft(
         dictionary,
       }),
     });
-    if (!res.ok) return;
-    const tiptapDoc = await res.json();
+    if (!res.ok || !res.body) return;
 
-    console.log("mergeDraft result:", tiptapDoc);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let fullContent = "";
 
-    onPartialJson(tiptapDoc);
-    onFinalJson?.(tiptapDoc);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      fullContent += chunk;
+      onPartialHtml(chunk);
+    }
+
+    // Since the response is HTML, we do not attempt to parse it as JSON.
+    onFinalHtml?.(fullContent);
   } catch (err) {
     console.error("mergeDraft failed:", err);
   }

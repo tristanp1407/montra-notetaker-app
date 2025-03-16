@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import React, { forwardRef, useCallback, useImperativeHandle } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import debounce from "lodash.debounce";
 
@@ -29,7 +24,6 @@ import { updateProjectContent } from "@actions/project/updateContent";
 
 import EditorToolbar from "./editor-toolbar";
 
-// Extended handle interface
 export type EditorHandle = {
   appendChunk: (chunk: string) => void;
   replaceContent: (jsonDoc: any) => void;
@@ -45,6 +39,7 @@ interface EditorProps {
 
 const Editor = forwardRef<EditorHandle, EditorProps>(
   ({ content, projectId, editable = true }, ref) => {
+    // Debounce saving project content by 1 second
     const debouncedUpdate = useCallback(
       debounce(async (json: any) => {
         await updateProjectContent(projectId, json);
@@ -76,68 +71,37 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         Placeholder.configure({
           placeholder: "Start typing here...",
           emptyEditorClass:
-            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-3xl ",
+            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-3xl",
         }),
       ],
       content: content ?? { type: "doc", content: [] },
       editable,
-      immediatelyRender: false,
-      onCreate: () => {
-        console.log("[Editor] Editor initialized.");
-      },
       onUpdate: ({ editor }) => {
-        console.log(
-          "[Editor] Content updated. (HTML preview):",
-          editor.getHTML()
-        );
         debouncedUpdate(editor.getJSON());
       },
     });
 
     useImperativeHandle(ref, () => ({
       appendChunk: (chunk: string) => {
-        if (!editor) {
-          console.warn("[Editor] Editor not ready yet, skipping append.");
-          return;
+        if (editor) {
+          editor
+            .chain()
+            .focus()
+            .insertContent(chunk, { updateSelection: false })
+            .run();
         }
-        editor
-          .chain()
-          .focus()
-          .insertContent(chunk, { updateSelection: false })
-          .run();
       },
       replaceContent: (jsonDoc: any) => {
-        if (!editor) {
-          console.warn("[Editor] Editor not ready yet, skipping replace.");
-          return;
+        if (editor) {
+          editor.commands.setContent(jsonDoc, false);
+          updateProjectContent(projectId, jsonDoc).catch(() => {});
         }
-        console.log("[Editor] replaceContent =>", jsonDoc);
-        editor.commands.setContent(jsonDoc, false);
-        updateProjectContent(projectId, jsonDoc)
-          .then(() =>
-            console.log("[Editor] Project content saved after generation.")
-          )
-          .catch((err) =>
-            console.error("[Editor] Failed to save content:", err)
-          );
       },
+      // Check if the HTML output is not empty or only an empty paragraph.
       hasContent: () => {
         if (!editor) return false;
-        const json = editor.getJSON();
-        if (!json || !json.content || json.content.length === 0) return false;
-        // If there is exactly one node and it is a paragraph, ensure it's not empty.
-        if (json.content.length === 1 && json.content[0].type === "paragraph") {
-          const paragraph = json.content[0];
-          if (!paragraph.content || paragraph.content.length === 0)
-            return false;
-          const allEmpty = paragraph.content.every(
-            (child: any) =>
-              child.type === "text" &&
-              (!child.text || child.text.trim().length === 0)
-          );
-          if (allEmpty) return false;
-        }
-        return true;
+        const html = editor.getHTML().trim();
+        return !(html === "<p></p>" || html === "<p><br></p>" || html === "");
       },
       getJSON: () => editor?.getJSON?.(),
     }));
