@@ -25,9 +25,11 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
+import History from "@tiptap/extension-history";
 import { updateProjectContent } from "@actions/project/updateContent";
 
 import EditorToolbar from "./editor-toolbar";
+import EditorContentSkeleton from "./editor-content-skeleton";
 
 export type EditorHandle = {
   appendChunk: (chunk: string) => void;
@@ -55,6 +57,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
 
     const editor = useEditor({
       extensions: [
+        History,
         Document,
         Paragraph,
         Text,
@@ -127,13 +130,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
           <div className="h-full max-w-[700px] mx-auto">
             <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
               {isLoading ? (
-                <div className="space-y-4 animate-pulse">
-                  <div className="h-6 w-1/3 bg-muted rounded-sm" />
-                  <div className="h-4 w-full bg-muted rounded-sm" />
-                  <div className="h-4 w-11/12 bg-muted rounded-sm" />
-                  <div className="h-4 w-10/12 bg-muted rounded-sm" />
-                  <div className="h-4 w-2/3 bg-muted rounded-sm" />
-                </div>
+                <EditorContentSkeleton />
               ) : (
                 <EditorContent editor={editor} className="h-full" />
               )}
