@@ -2,44 +2,33 @@
 
 import { createClient } from "@utils/supabase/server";
 
-export async function createProject() {
+export async function createProject(id: string) {
   const supabase = await createClient();
 
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
-
   if (userError || !user) {
-    console.error("[createProject] Authentication error:", userError);
-    return { error: "User not authenticated." };
+    console.error("[createProject] User auth error:", userError);
+    return { error: "Unauthenticated" };
   }
-
-  const emptyDoc = {
-    type: "doc",
-    content: [
-      {
-        type: "paragraph",
-      },
-    ],
-  };
 
   const { data, error } = await supabase
     .from("projects")
-    .insert([
-      {
-        title: "Untitled Project",
-        content: emptyDoc,
-        user_id: user.id,
-      },
-    ])
-    .select("id")
+    .insert({
+      id,
+      title: "Untitled Project",
+      content: "",
+      user_id: user.id,
+    })
+    .select()
     .single();
 
-  if (error) {
-    console.error("[createProject] Failed to create project:", error);
-    return { error: error.message };
+  if (error || !data) {
+    console.error("[createProject] Insert error:", error);
+    return { error: error?.message || "Insert failed" };
   }
 
-  return { id: data?.id };
+  return { data };
 }

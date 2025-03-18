@@ -35,10 +35,11 @@ interface EditorProps {
   content?: any;
   projectId: string;
   editable?: boolean;
+  isLoading?: boolean;
 }
 
 const Editor = forwardRef<EditorHandle, EditorProps>(
-  ({ content, projectId, editable = true }, ref) => {
+  ({ content, projectId, editable = true, isLoading }, ref) => {
     // Debounce saving project content by 1 second
     const debouncedUpdate = useCallback(
       debounce(async (json: any) => {
@@ -74,6 +75,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
             "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-3xl",
         }),
       ],
+      immediatelyRender: false,
       content: content ?? { type: "doc", content: [] },
       editable,
       onUpdate: ({ editor }) => {
@@ -114,7 +116,17 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         <div className="flex-1 relative">
           <div className="h-full max-w-[700px] mx-auto">
             <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
-              <EditorContent editor={editor} className="h-full" />
+              {isLoading ? (
+                <div className="space-y-4 animate-pulse">
+                  <div className="h-6 w-1/3 bg-muted rounded-sm" />
+                  <div className="h-4 w-full bg-muted rounded-sm" />
+                  <div className="h-4 w-11/12 bg-muted rounded-sm" />
+                  <div className="h-4 w-10/12 bg-muted rounded-sm" />
+                  <div className="h-4 w-2/3 bg-muted rounded-sm" />
+                </div>
+              ) : (
+                <EditorContent editor={editor} className="h-full" />
+              )}
             </div>
           </div>
         </div>
