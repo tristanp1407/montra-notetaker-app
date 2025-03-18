@@ -35,7 +35,7 @@ export type EditorHandle = {
   appendChunk: (chunk: string) => void;
   replaceContent: (jsonDoc: any) => void;
   hasContent: () => boolean;
-  getJSON: () => any;
+  getHTML: () => any;
 };
 
 interface EditorProps {
@@ -49,8 +49,8 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
   ({ content, projectId, editable = true, isLoading }, ref) => {
     // Debounce saving project content by 1 second
     const debouncedUpdate = useCallback(
-      debounce(async (json: any) => {
-        await updateProjectContent(projectId, json);
+      debounce(async (contentHtml: string) => {
+        await updateProjectContent(projectId, contentHtml);
       }, 1000),
       [content]
     );
@@ -80,14 +80,14 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         Placeholder.configure({
           placeholder: "Start typing here...",
           emptyEditorClass:
-            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-400 first:before:pointer-events-none first:before:h-0 text-3xl",
+            "cursor-text first:before:content-[attr(data-placeholder)] first:before:absolute first:before:text-gray-300 first:before:pointer-events-none first:before:h-0 text-3xl font-bold",
         }),
       ],
       immediatelyRender: false,
       content: content ?? { type: "doc", content: [] },
       editable,
       onUpdate: ({ editor }) => {
-        debouncedUpdate(editor.getJSON());
+        debouncedUpdate(editor.getHTML());
       },
     });
 
@@ -106,19 +106,18 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
             .run();
         }
       },
-      replaceContent: (jsonDoc: any) => {
+      replaceContent: (content: string) => {
         if (editor) {
-          editor.commands.setContent(jsonDoc, false);
-          updateProjectContent(projectId, jsonDoc).catch(() => {});
+          editor.commands.setContent(content, false);
+          debouncedUpdate(content);
         }
       },
       // Check if the HTML output is not empty or only an empty paragraph.
       hasContent: () => {
         if (!editor) return false;
-        const html = editor.getHTML().trim();
-        return !(html === "<p></p>" || html === "<p><br></p>" || html === "");
+        return !editor.isEmpty;
       },
-      getJSON: () => editor?.getJSON?.(),
+      getHTML: () => editor?.getHTML?.(),
     }));
 
     if (!editor) return null;

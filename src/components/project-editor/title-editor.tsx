@@ -15,7 +15,7 @@ export default function TitleEditor({ projectId }: TitleEditorProps) {
   const [loading, setLoading] = useState(true);
 
   const saveTitle = useCallback(
-    debounce((value: string) => updateProjectTitle(projectId, value), 1000),
+    debounce((value: string) => updateProjectTitle(projectId, value), 500),
     [title]
   );
 

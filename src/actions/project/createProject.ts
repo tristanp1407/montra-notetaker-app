@@ -19,7 +19,7 @@ export async function createProject(id: string) {
     .insert({
       id,
       title: "Untitled Project",
-      content: "",
+      content: "<h1></h1>",
       user_id: user.id,
     })
     .select()

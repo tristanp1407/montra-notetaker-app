@@ -17,7 +17,7 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="text-sm font-medium hover:underline border rounded-sm flex items-center gap-1 py-1 pl-2 pr-3"
+      className="text-sm font-medium hover:underline border rounded-sm flex items-center gap-1 py-1 pl-2 pr-3 cursor-pointer"
     >
       <ChevronLeft className="w-4 h-4" />
       Back

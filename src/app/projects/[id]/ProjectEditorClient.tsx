@@ -58,14 +58,15 @@ export default function ProjectEditorClient({
       if (!result) throw new Error("Transcription failed");
 
       setTranscript(result);
-      const hasContent = editorRef.current?.hasContent?.() || false;
+      const hasContent: boolean = editorRef.current?.hasContent?.() || false;
       let buffer = "";
 
       if (hasContent) {
         await mergeDraft(
           result,
-          editorRef.current?.getJSON(),
+          editorRef.current?.getHTML(),
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },
@@ -76,6 +77,7 @@ export default function ProjectEditorClient({
         await generateNote(
           result,
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },

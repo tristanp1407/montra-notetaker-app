@@ -2,12 +2,15 @@
 
 import { createClient } from "@utils/supabase/server";
 
-export async function updateProjectContent(projectId: string, content: any) {
+export async function updateProjectContent(
+  projectId: string,
+  contentHtml: any
+) {
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("projects")
-    .update({ content })
+    .update({ content: contentHtml })
     .eq("id", projectId);
 
   if (error) {
