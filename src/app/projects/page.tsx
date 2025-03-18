@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@utils/supabase/server";
 import { Header } from "@components/layout/Header";
 import { Sidebar } from "@components/layout/Sidebar";
@@ -11,15 +13,7 @@ export default async function ProjectsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  const { data: projects } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("updated_at", { ascending: false });
+  if (!user) redirect("/sign-in");
 
   return (
     <div className="flex h-screen">
@@ -27,7 +21,7 @@ export default async function ProjectsPage() {
       <div className="flex flex-col flex-1">
         <Header />
         <main className="flex-1 overflow-auto">
-          {projects && <ProjectsTable initialProjects={projects} />}
+          <ProjectsTable initialProjects={[]} />
         </main>
       </div>
     </div>

@@ -1,6 +1,11 @@
 "use client";
 
-import React, { forwardRef, useCallback, useImperativeHandle } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+} from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import debounce from "lodash.debounce";
 
@@ -45,7 +50,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       debounce(async (json: any) => {
         await updateProjectContent(projectId, json);
       }, 1000),
-      [projectId]
+      [content]
     );
 
     const editor = useEditor({
@@ -82,6 +87,11 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         debouncedUpdate(editor.getJSON());
       },
     });
+
+    useEffect(() => {
+      if (!editor) return;
+      editor.commands.setContent(content, false);
+    }, [content, editor]);
 
     useImperativeHandle(ref, () => ({
       appendChunk: (chunk: string) => {

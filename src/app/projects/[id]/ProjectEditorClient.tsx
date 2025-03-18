@@ -25,13 +25,10 @@ export default function ProjectEditorClient({
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState<string | null>(null);
 
-  console.log("⭐️ Content:", content);
-
   useEffect(() => {
     const fetchOrCreate = async () => {
       try {
         const project = await getProjectByIdClient(projectId);
-        console.log("⭐️ Project from fetch:", project);
 
         if (project?.data) {
           setContent(project.data.content);
@@ -40,7 +37,6 @@ export default function ProjectEditorClient({
 
         // If not found → create fallback
         const created = await createProjectClient(projectId);
-        console.log("⭐️ Created project:", created);
         setContent(created.content);
       } catch (err) {
         console.error(
