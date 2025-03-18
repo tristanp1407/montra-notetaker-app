@@ -70,7 +70,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         Italic,
         Strike,
         Link.configure({
-          openOnClick: false,
+          openOnClick: true,
           autolink: true,
           linkOnPaste: true,
         }),
