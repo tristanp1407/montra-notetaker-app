@@ -18,7 +18,7 @@ export default function ProjectsTableGroup({
       <tr>
         <td
           colSpan={4}
-          className="bg-muted px-3 py-2 text-sm font-medium text-gray-700 border-y"
+          className="px-4 py-1.5 text-sm text-gray-600 bg-gray-50 border-y border-gray-100"
         >
           {label}
         </td>

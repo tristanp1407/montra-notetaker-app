@@ -33,13 +33,13 @@ import EditorContentSkeleton from "./editor-content-skeleton";
 
 export type EditorHandle = {
   appendChunk: (chunk: string) => void;
-  replaceContent: (jsonDoc: any) => void;
+  replaceContent: (html: string) => void;
   hasContent: () => boolean;
-  getHTML: () => any;
+  getHTML: () => string;
 };
 
 interface EditorProps {
-  content?: any;
+  content?: string;
   projectId: string;
   editable?: boolean;
   isLoading?: boolean;
@@ -52,7 +52,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       debounce(async (contentHtml: string) => {
         await updateProjectContent(projectId, contentHtml);
       }, 1000),
-      [content]
+      [projectId, content]
     );
 
     const editor = useEditor({
@@ -93,7 +93,10 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
 
     useEffect(() => {
       if (!editor) return;
-      editor.commands.setContent(content, false);
+      editor.commands.setContent(
+        content ?? { type: "doc", content: [] },
+        false
+      );
     }, [content, editor]);
 
     useImperativeHandle(ref, () => ({
@@ -117,22 +120,24 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
         if (!editor) return false;
         return !editor.isEmpty;
       },
-      getHTML: () => editor?.getHTML?.(),
+      getHTML: () => editor?.getHTML?.() ?? "",
     }));
 
     if (!editor) return null;
 
     return (
       <div className="flex flex-col h-full space-y-4">
-        <EditorToolbar editor={editor} />
-        <div className="flex-1 relative">
-          <div className="h-full max-w-[700px] mx-auto">
-            <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
-              {isLoading ? (
-                <EditorContentSkeleton />
-              ) : (
-                <EditorContent editor={editor} className="h-full" />
-              )}
+        <div className="flex flex-col h-full">
+          <EditorToolbar editor={editor} />
+          <div className="flex-1 relative overflow-auto">
+            <div className="h-full max-w-[700px] mx-auto">
+              <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
+                {isLoading ? (
+                  <EditorContentSkeleton />
+                ) : (
+                  <EditorContent editor={editor} className="h-full" />
+                )}
+              </div>
             </div>
           </div>
         </div>

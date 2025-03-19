@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { Button } from "@components/ui/button";
+import Plus from "@icons/Plus";
 
 export function NewProjectButton() {
   const router = useRouter();
@@ -14,7 +15,8 @@ export function NewProjectButton() {
 
   return (
     <Button size="sm" onClick={handleCreate}>
-      + New Project
+      <Plus />
+      New Project
     </Button>
   );
 }

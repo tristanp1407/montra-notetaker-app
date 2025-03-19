@@ -98,7 +98,7 @@ export default function ProjectEditorClient({
         <Editor
           ref={editorRef}
           projectId={projectId}
-          content={content}
+          content={content ?? "<h1></h1>"}
           isLoading={isLoading}
         />
       </div>

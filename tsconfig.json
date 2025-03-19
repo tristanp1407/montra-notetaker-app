@@ -27,7 +27,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@actions/*": ["./src/actions/*"],
       "@context/*": ["./src/context/*"],
-      "@data/*": ["./src/data/*"]
+      "@icons/*": ["./src/icons/*"]
     }
   },
   "include": [

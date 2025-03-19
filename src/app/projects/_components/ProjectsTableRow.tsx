@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import Link from "next/link";
-import { ScrollText, MoreHorizontal, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import {
   Popover,
@@ -8,11 +8,13 @@ import {
   PopoverContent,
 } from "@components/ui/popover";
 import { Project } from "@customTypes/project";
+import BlankPage from "@icons/BlankPage";
+import DotGrid from "@icons/DotGrid";
 
 interface Props {
   project: Project;
   onDelete: (id: string) => void;
-  showActions?: boolean; // Optional, in case you want to control it
+  showActions?: boolean;
 }
 
 export default function ProjectsTableRow({
@@ -21,48 +23,56 @@ export default function ProjectsTableRow({
   showActions = true,
 }: Props) {
   return (
-    <tr className="hover:bg-muted/50 border-b">
-      <td className="px-3 py-3 w-[40%]">
-        <Link
-          href={`/projects/${project.id}`}
-          className="flex items-center gap-2"
-        >
-          <div className="w-8 h-8 rounded-md border border-gray-200 flex items-center justify-center">
-            <ScrollText className="w-4 h-4 text-muted-foreground" />
+    <tr className="h-16 text-sm">
+      <td colSpan={4} className="p-0 border-b border-gray-100">
+        <div className="m-[5px] h-[54px] flex items-center justify-between rounded-xl hover:bg-gray-100 transition-colors px-3 cursor-pointer">
+          <Link
+            href={`/projects/${project.id}`}
+            className="flex items-center gap-2 w-[40%] h-full"
+          >
+            <div className="w-8 h-8 rounded-md border bg-white border-gray-100 flex items-center justify-center">
+              <BlankPage className="w-[16px] h-[16px] text-gray-500" />
+            </div>
+            {project.title}
+          </Link>
+
+          <div className="text-right w-[20%] text-muted-foreground font-light pr-5">
+            {format(new Date(project.created_at), "MMM d, yyyy")}
           </div>
-          {project.title}
-        </Link>
-      </td>
 
-      <td className="px-3 py-2 text-right w-[20%] text-muted-foreground">
-        {format(new Date(project.created_at), "MMM d, yyyy")}
-      </td>
+          <div className="text-right w-[20%] text-muted-foreground font-light">
+            {format(new Date(project.updated_at), "MMM d, yyyy")}
+          </div>
 
-      <td className="px-3 py-2 text-right w-[20%] text-muted-foreground">
-        {format(new Date(project.updated_at), "MMM d, yyyy")}
-      </td>
-
-      <td className="px-3 py-2 text-right w-[20%]">
-        {showActions ? (
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="p-1 rounded hover:bg-muted mr-6 cursor-pointer">
-                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-32 p-0">
-              <button
-                onClick={() => onDelete(project.id)}
-                className="w-full px-3 py-2 flex items-center gap-2 hover:bg-muted text-sm text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            </PopoverContent>
-          </Popover>
-        ) : (
-          <div className="w-6 h-4" /> // Empty placeholder keeps layout fixed
-        )}
+          <div className="text-right w-[20%] flex justify-end items-center">
+            {showActions ? (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1 rounded mr-2 cursor-pointer hover:bg-gray-200"
+                  >
+                    <DotGrid className="w-4 h-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-32 p-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(project.id);
+                    }}
+                    className="w-full px-3 py-2 flex items-center gap-2 hover:bg-muted text-sm text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <div className="w-6 h-4" />
+            )}
+          </div>
+        </div>
       </td>
     </tr>
   );

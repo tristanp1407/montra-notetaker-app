@@ -21,13 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans">
-        <div className="hidden lg:block">{children}</div>
-        <div className="lg:hidden flex items-center justify-center h-screen text-center px-4">
+        <div className="">{children}</div>
+        {/* <div className="lg:hidden flex items-center justify-center h-screen text-center px-4">
           <p className="text-lg text-gray-600 max-w-md">
             Please use this application on a desktop. Smaller devices are not
             supported at this time. 😊
           </p>
-        </div>
+        </div> */}
       </body>
       <Toaster />
     </html>

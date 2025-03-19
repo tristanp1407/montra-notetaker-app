@@ -1,12 +1,13 @@
 "use client";
 
 import { Project } from "@customTypes/project";
+import { NewProjectButton } from "@components/ui/new-project-button";
+import Filter from "@icons/Filter";
+
 import useProjectsTable from "./useProjectsTable";
 import ProjectsTableHeader from "./ProjectsTableHeader";
 import ProjectsTableGroup from "./ProjectsTableGroup";
 import ProjectRowSkeleton from "./ProjectRowSkeleton";
-import { NewProjectButton } from "@components/ui/new-project-button";
-import { CalendarArrowDown, CalendarArrowUp } from "lucide-react";
 
 interface ProjectsTableProps {
   initialProjects: Project[];
@@ -32,17 +33,22 @@ export default function ProjectsTable({ initialProjects }: ProjectsTableProps) {
     <div>
       {/* Toolbar above the table */}
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2 bg-gray-50 text-gray-700 text-xs px-3 py-1 rounded-sm border border-gray-200">
-          {sortDesc ? (
-            <CalendarArrowDown className="w-3.5 h-3.5" />
-          ) : (
-            <CalendarArrowUp className="w-3.5 h-3.5" />
-          )}
+        <button
+          onClick={() =>
+            toggleSort(
+              sortColumn === "created_at" ? "updated_at" : "created_at"
+            )
+          }
+          className="flex items-center gap-2 bg-gray-50 text-gray-500 text-[14px] px-2 py-0.5 rounded-[6px] border border-gray-100 cursor-pointer"
+        >
+          <Filter className="w-[16px] h-[16px]" />
           <span>
-            Sorted by:{" "}
-            <strong className="font-semibold">{sortLabels[sortColumn]}</strong>
+            Sorted by{" "}
+            <strong className="text-gray-800 font-normal">
+              {sortLabels[sortColumn]}
+            </strong>
           </span>
-        </div>
+        </button>
         <NewProjectButton />
       </div>
 
