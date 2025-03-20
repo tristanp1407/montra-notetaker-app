@@ -89,6 +89,10 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       content: content ?? { type: "doc", content: [] },
       editable,
       onUpdate: ({ editor }) => {
+        if (editor.isEmpty) {
+          editor.commands.setContent("<h1></h1>");
+          debouncedUpdate("<h1></h1>");
+        }
         debouncedUpdate(editor.getHTML());
       },
     });
