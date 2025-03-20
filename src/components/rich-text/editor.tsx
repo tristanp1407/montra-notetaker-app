@@ -26,10 +26,10 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import History from "@tiptap/extension-history";
-import { updateProjectContent } from "@actions/project/updateContent";
 
 import EditorToolbar from "./editor-toolbar";
 import EditorContentSkeleton from "./editor-content-skeleton";
+import { updateDraft } from "@actions/draft/updateDraft";
 
 export type EditorHandle = {
   appendChunk: (chunk: string) => void;
@@ -39,18 +39,20 @@ export type EditorHandle = {
 };
 
 interface EditorProps {
-  content?: string;
+  content?: string | null;
   projectId: string;
   editable?: boolean;
   isLoading?: boolean;
+  draftId: string | null;
 }
 
 const Editor = forwardRef<EditorHandle, EditorProps>(
-  ({ content, projectId, editable = true, isLoading }, ref) => {
+  ({ content, projectId, editable = true, isLoading, draftId }, ref) => {
     // Debounce saving project content by 1 second
     const debouncedUpdate = useCallback(
       debounce(async (contentHtml: string) => {
-        await updateProjectContent(projectId, contentHtml);
+        if (!draftId) return null;
+        await updateDraft(draftId, { content: contentHtml });
       }, 1000),
       [projectId, content]
     );
@@ -131,7 +133,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
           <EditorToolbar editor={editor} />
           <div className="flex-1 relative overflow-auto">
             <div className="h-full max-w-[700px] mx-auto">
-              <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10">
+              <div className="prose prose-sm sm:prose-base max-w-none h-full pt-10 px-10">
                 {isLoading ? (
                   <EditorContentSkeleton />
                 ) : (
