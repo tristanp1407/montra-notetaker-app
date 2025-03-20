@@ -53,7 +53,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       debounce(async (contentHtml: string) => {
         if (!draftId) return null;
         await updateDraft(draftId, { content: contentHtml });
-      }, 1000),
+      }, 500),
       [projectId, content]
     );
 

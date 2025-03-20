@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createProject } from "@actions/project/createProject";
-import { getProjectById } from "@lib/data/projects";
+import { getProjectById } from "@actions/project/getProjectById";
 
 export async function POST(req: Request) {
   try {

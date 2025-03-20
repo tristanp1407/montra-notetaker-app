@@ -19,31 +19,36 @@ interface EditorToolbarProps {
   editor: TiptapEditor | null;
 }
 
+// Helper to determine active state only when the editor is focused
+const isButtonActive = (
+  editor: TiptapEditor,
+  command: string | object,
+  options?: any
+) => editor.isFocused && editor.isActive(command, options);
+
 export default function EditorToolbar({ editor }: EditorToolbarProps) {
   if (!editor) return null;
 
-  // Button class helper – adds active styling if the command is active.
+  // Button class helper – ensures consistent width and height, removes border, and adds background styling when active.
   const btnClass = (active: boolean) =>
-    `p-2 rounded border flex items-center justify-center ${
-      active ? "border-gray-400 bg-muted w-10 h-10" : "border-transparent"
+    `p-2 rounded flex items-center justify-center w-9 h-9 hover:bg-gray-100 ${
+      active ? "bg-gray-200" : ""
     }`;
 
   // Vertical separator element
   const Separator = () => <div className="h-full w-px bg-gray-300 mx-2" />;
 
   return (
-    <div className="flex justify-center gap-2 flex-wrap border-b-1 h-10">
-      {/* Group 1: Standard Text and Headings */}
-      {/* Standard Text (T) */}
+    <div className="flex justify-center items-center gap-2 flex-wrap border-b h-10">
+      {/* Group 1: Text and Headings */}
       <button
         type="button"
         onClick={() => editor.chain().focus().setParagraph().run()}
-        className={btnClass(editor.isActive("paragraph"))}
+        className={btnClass(isButtonActive(editor, "paragraph"))}
       >
-        <span className="">T</span>
+        <span>T</span>
       </button>
 
-      {/* Heading levels */}
       {[1, 2, 3].map((level) => (
         <button
           key={level}
@@ -55,29 +60,26 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
               .toggleHeading({ level: level as 1 | 2 | 3 })
               .run()
           }
-          className={btnClass(editor.isActive("heading", { level }))}
+          className={btnClass(isButtonActive(editor, "heading", { level }))}
         >
-          <span className="">H{level}</span>
+          <span>H{level}</span>
         </button>
       ))}
 
       <Separator />
 
       {/* Group 2: Lists */}
-      {/* Bullet List */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={btnClass(editor.isActive("bulletList"))}
+        className={btnClass(isButtonActive(editor, "bulletList"))}
       >
         <List className="w-4 h-4" />
       </button>
-
-      {/* Numbered (Ordered) List */}
       <button
         type="button"
-        onClick={() => editor.chain().focus().toggleOrderedList?.().run()}
-        className={btnClass(editor.isActive("orderedList"))}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        className={btnClass(isButtonActive(editor, "orderedList"))}
       >
         <ListOrdered className="w-4 h-4" />
       </button>
@@ -85,38 +87,31 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       <Separator />
 
       {/* Group 3: Text Styles */}
-      {/* Bold */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
-        className={btnClass(editor.isActive("bold"))}
+        className={btnClass(isButtonActive(editor, "bold"))}
       >
         <Bold className="w-4 h-4" />
       </button>
-
-      {/* Italic */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={btnClass(editor.isActive("italic"))}
+        className={btnClass(isButtonActive(editor, "italic"))}
       >
         <Italic className="w-4 h-4" />
       </button>
-
-      {/* Underline */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
-        className={btnClass(editor.isActive("underline"))}
+        className={btnClass(isButtonActive(editor, "underline"))}
       >
         <Underline className="w-4 h-4" />
       </button>
-
-      {/* Strikethrough */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleStrike().run()}
-        className={btnClass(editor.isActive("strike"))}
+        className={btnClass(isButtonActive(editor, "strike"))}
       >
         <Strikethrough className="w-4 h-4" />
       </button>
@@ -124,7 +119,6 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
       <Separator />
 
       {/* Group 4: Link, Align, Highlight, Quote */}
-      {/* Link toggle: if active, clicking unsets link */}
       <button
         type="button"
         onClick={() => {
@@ -142,12 +136,10 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
             }
           }
         }}
-        className={btnClass(editor.isActive("link"))}
+        className={btnClass(isButtonActive(editor, "link"))}
       >
         <Link2 className="w-4 h-4" />
       </button>
-
-      {/* Align text toggle between left and center */}
       <button
         type="button"
         onClick={() => {
@@ -158,8 +150,9 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
           }
         }}
         className={btnClass(
-          editor.isActive({ textAlign: "center" }) ||
-            editor.isActive({ textAlign: "left" })
+          editor.isFocused &&
+            (editor.isActive({ textAlign: "center" }) ||
+              editor.isActive({ textAlign: "left" }))
         )}
       >
         {editor.isActive({ textAlign: "center" }) ? (
@@ -168,21 +161,17 @@ export default function EditorToolbar({ editor }: EditorToolbarProps) {
           <AlignLeft className="w-4 h-4" />
         )}
       </button>
-
-      {/* Text Highlight */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleHighlight().run()}
-        className={btnClass(editor.isActive("highlight"))}
+        className={btnClass(isButtonActive(editor, "highlight"))}
       >
         <Highlighter className="w-4 h-4" />
       </button>
-
-      {/* Quote */}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={btnClass(editor.isActive("blockquote"))}
+        className={btnClass(isButtonActive(editor, "blockquote"))}
       >
         <Quote className="w-4 h-4" />
       </button>

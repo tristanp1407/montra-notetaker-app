@@ -1,5 +1,6 @@
 "use server";
 
+import { createDraft } from "@actions/draft/createDraft";
 import { createClient } from "@utils/supabase/server";
 
 export async function createProject(projectId: string) {
@@ -23,7 +24,7 @@ export async function createProject(projectId: string) {
     const { data: projectData, error: projectError } = await supabase
       .from("projects")
       .insert({
-        id: projectId, // Use the provided projectId
+        id: projectId,
         title: "Untitled Project",
         user_id: user.id,
       })
@@ -38,24 +39,14 @@ export async function createProject(projectId: string) {
       };
     }
 
-    // Step 2: Create initial draft (project_id uses provided ID)
-    const { data: draftData, error: draftError } = await supabase
-      .from("drafts")
-      .insert({
-        project_id: projectData.id,
-        content: "<h1></h1>",
-        file_url: null,
-        file_type: null,
-        transcript: null,
-      })
-      .select("id")
-      .single();
+    // Step 2: Create initial draft using extracted function
+    const draftRes = await createDraft(projectData.id);
 
-    if (draftError || !draftData) {
+    if (draftRes.error || !draftRes.data?.id) {
       return {
-        error: "Failed to create initial draft",
-        detail: draftError?.message,
-        status: 500,
+        error: draftRes.error || "Failed to create initial draft",
+        detail: draftRes.detail,
+        status: draftRes.status || 500,
       };
     }
 
@@ -64,12 +55,12 @@ export async function createProject(projectId: string) {
         id: projectData.id,
         title: projectData.title,
         updated_at: projectData.updated_at,
-        draftIds: [draftData.id],
+        draftIds: [draftRes.data.id],
       },
       status: 200,
     };
   } catch (err) {
-    console.error("[createProject] Unhandled exception", err);
+    console.error("[createProject] Unhandled exception:", err);
     return {
       error: "Unexpected server error",
       detail: err instanceof Error ? err.message : String(err),

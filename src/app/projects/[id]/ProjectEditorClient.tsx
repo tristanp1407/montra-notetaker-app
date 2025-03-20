@@ -7,14 +7,20 @@ import { generateNote } from "@lib/note-generation/generate-note";
 import { mergeDraft } from "@lib/note-generation/merge-draft";
 import {
   createProjectClient,
-  getDraftByIdClient,
   getProjectByIdClient,
 } from "@lib/data/projectsClient";
-
 import TextPanel from "@components/project-editor/transcriptions-panels/TextPanel";
 import FileUploadPanel from "@components/project-editor/transcriptions-panels/FileUplaodPanel";
 import LastTranscriptionPanel from "@components/project-editor/transcriptions-panels/LastTranscriptionPanel";
 import VoicePanel from "@components/project-editor/transcriptions-panels/VoicePanel";
+import Cross from "@icons/Cross";
+import Plus from "@icons/Plus";
+import { createDraftClient, getDraftByIdClient } from "@lib/data/draftsClient";
+import TextIcon from "@icons/Text";
+import CloudUpload from "@icons/CloudUpload";
+import Microphone from "@icons/Microphone";
+import CircleInfo from "@icons/CircleInfo";
+import SideBarInfo from "@icons/SideBarInfo";
 
 interface ProjectEditorClientProps {
   projectId: string;
@@ -103,6 +109,7 @@ export default function ProjectEditorClient({
           result,
           editorRef.current?.getHTML(),
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },
@@ -113,6 +120,7 @@ export default function ProjectEditorClient({
         await generateNote(
           result,
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },
@@ -146,6 +154,23 @@ export default function ProjectEditorClient({
         return <VoicePanel {...sharedProps} />;
     }
   };
+  const handleNewDraft = async () => {
+    setIsLoading(true);
+    try {
+      const data = await createDraftClient(projectId);
+      setDraftIds((prev) => [...prev, data.id]);
+
+      // Clear content *before* loading new draft
+      setContent(null);
+      setSelectedDraftId(null);
+
+      await loadDraft(data.id);
+    } catch (err) {
+      console.error("[ProjectEditorClient] handleNewDraft error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-full w-full overflow-hidden">
@@ -159,7 +184,9 @@ export default function ProjectEditorClient({
           draftIds.map((draftId, index) => (
             <div
               key={draftId}
-              className="p-4 flex items-center justify-center cursor-pointer hover:bg-accent rounded"
+              className={`p-4 flex items-center justify-center cursor-pointer hover:bg-accent rounded ${
+                selectedDraftId === draftId ? "border-2 border-primary" : ""
+              }`}
               onClick={() => loadDraft(draftId)}
             >
               <div className="w-20 h-20 flex items-center justify-center bg-muted rounded">
@@ -168,6 +195,15 @@ export default function ProjectEditorClient({
             </div>
           ))
         )}
+        <div className="p-4 flex items-center justify-center">
+          <button
+            className="flex items-center justify-center w-11 h-7 border rounded border-muted px-2 py-1 gap-0.5 hover:bg-accent transition text-gray-700"
+            onClick={() => handleNewDraft()}
+            title="Add New Draft"
+          >
+            <Plus className="text-gray-600 w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Main Editor Area */}
@@ -189,13 +225,13 @@ export default function ProjectEditorClient({
       >
         <div className="h-full border-l border-muted bg-background flex flex-col">
           <div className="h-10 border-b flex items-center justify-between px-4">
-            <p className="text-sm font-medium">New Draft</p>
+            <p className="text-sm font-medium whitespace-nowrap">New Draft</p>
             <button
               onClick={() => setIsPanelOpen(false)}
               className="text-sm hover:text-muted-foreground"
               title="Close Panel"
             >
-              ❌
+              <Cross />
             </button>
           </div>
           <div className="p-4 overflow-auto">{renderPanelContent()}</div>
@@ -203,13 +239,33 @@ export default function ProjectEditorClient({
       </div>
 
       {/* Right Icon Nav Bar */}
-      <div className="flex flex-col w-12 border-l border-muted bg-background items-center py-4 space-y-3">
+      <div className="flex flex-col w-12 border-l border-muted bg-gray-50 items-center py-4 space-y-3">
         {isPanelOpen ? (
           [
-            { type: "TEXT", label: "✍️" },
-            { type: "UPLOAD", label: "📎" },
-            { type: "MIC", label: "🎤" },
-            { type: "INFO", label: "ℹ️" },
+            {
+              type: "TEXT",
+              label: (
+                <TextIcon className="w-6 h-6 text-gray-600 cursor-pointer" />
+              ),
+            },
+            {
+              type: "UPLOAD",
+              label: (
+                <CloudUpload className="w-6 h-6 text-gray-600 cursor-pointer" />
+              ),
+            },
+            {
+              type: "MIC",
+              label: (
+                <Microphone className="w-6 h-6 text-gray-600 cursor-pointer" />
+              ),
+            },
+            {
+              type: "INFO",
+              label: (
+                <CircleInfo className="w-6 h-6 text-gray-600 cursor-pointer" />
+              ),
+            },
           ].map(({ type, label }) => (
             <button
               key={type}
@@ -228,7 +284,7 @@ export default function ProjectEditorClient({
             onClick={() => setIsPanelOpen(true)}
             title="Open Panel"
           >
-            📂
+            <SideBarInfo className="w-6 h-6 text-gray-600 cursor-pointer" />
           </button>
         )}
       </div>
