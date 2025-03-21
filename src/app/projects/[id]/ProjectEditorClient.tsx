@@ -72,7 +72,7 @@ export default function ProjectEditorClient({
     setSelectedDraftId(draftId);
     try {
       const data = await getDraftByIdClient(draftId);
-      setContent(data?.content || "<h1></h1>");
+      editorRef.current?.replaceContent(data.content);
     } catch (err) {
       console.error("[ProjectEditorClient] loadDraft error:", err);
       setContent("<h1></h1>");
@@ -166,7 +166,7 @@ export default function ProjectEditorClient({
         draftIds={draftIds}
         selectedDraftId={selectedDraftId}
         onSelectDraft={loadDraft}
-        onNewDraft={() => handleNewDraft()}
+        onNewDraft={handleNewDraft}
         isLoading={isLoading}
       />
       <div className="flex-1 overflow-auto">
