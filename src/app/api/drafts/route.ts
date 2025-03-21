@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getDraftById } from "@actions/draft/getDraftById";
 import { updateDraft } from "@actions/draft/updateDraft";
 import { createDraft } from "@actions/draft/createDraft";
+import { Draft } from "@customTypes/drafts";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -58,7 +59,7 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const projectId = body?.projectId;
+    const { projectId, data }: { projectId: string; data: Draft } = body;
 
     if (!projectId) {
       return Response.json(
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await createDraft(projectId);
+    const result = await createDraft(projectId, data);
 
     if (result.error) {
       return Response.json(

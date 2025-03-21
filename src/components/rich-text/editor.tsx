@@ -2,6 +2,7 @@
 
 import React, {
   forwardRef,
+  use,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -52,9 +53,12 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
     const debouncedUpdate = useCallback(
       debounce(async (contentHtml: string) => {
         if (!draftId) return null;
+        // log save with emoji
+        console.log("💾 Saving draft content...", contentHtml);
+        console.log("💾 Saving draft id...", draftId);
         await updateDraft(draftId, { content: contentHtml });
       }, 500),
-      [projectId, content]
+      [projectId, draftId, content]
     );
 
     const editor = useEditor({
@@ -88,7 +92,10 @@ const Editor = forwardRef<EditorHandle, EditorProps>(
       immediatelyRender: false,
       content: content ?? { type: "doc", content: [] },
       editable,
+
       onUpdate: ({ editor }) => {
+        // Log content with emoji
+        console.log("📝 Editor content:", editor.getHTML());
         if (editor.isEmpty) {
           editor.commands.setContent("<h1></h1>");
           debouncedUpdate("<h1></h1>");

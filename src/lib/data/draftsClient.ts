@@ -1,3 +1,5 @@
+import { Draft } from "@customTypes/drafts";
+
 export const getDraftByIdClient = async (draftId: string) => {
   try {
     const res = await fetch(`/api/drafts?id=${draftId}`, {
@@ -26,12 +28,15 @@ export const getDraftByIdClient = async (draftId: string) => {
   }
 };
 
-export const createDraftClient = async (projectId: string) => {
+export const createDraftClient = async (
+  projectId: string,
+  data: Partial<Draft>
+) => {
   try {
     const res = await fetch(`/api/drafts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId }),
+      body: JSON.stringify({ projectId, data }),
     });
 
     if (!res.ok) {

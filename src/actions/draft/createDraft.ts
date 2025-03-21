@@ -1,8 +1,12 @@
 "use server";
 
+import { Draft } from "@customTypes/drafts";
 import { createClient } from "@utils/supabase/server";
 
-export async function createDraft(projectId: string) {
+export async function createDraft(
+  projectId: string,
+  draftData: Partial<Draft>
+) {
   console.log("[createDraft] Creating draft for project:", projectId);
   const supabase = await createClient();
 
@@ -11,10 +15,10 @@ export async function createDraft(projectId: string) {
       .from("drafts")
       .insert({
         project_id: projectId,
-        content: "<h1></h1>",
-        file_url: null,
-        file_type: null,
-        transcript: null,
+        content: draftData?.content || "<h1></h1>",
+        file_url: draftData?.file_url || null,
+        file_type: draftData?.file_type || null,
+        transcript: draftData?.transcript || null,
       })
       .select("id")
       .single();

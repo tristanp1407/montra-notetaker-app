@@ -91,10 +91,12 @@ export default function ProjectEditorClient({
       const hasContent = editorRef.current?.hasContent?.() || false;
       let buffer = "";
       if (hasContent) {
+        handleNewDraft();
         await mergeDraft(
           result,
           editorRef.current?.getHTML(),
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },
@@ -105,6 +107,7 @@ export default function ProjectEditorClient({
         await generateNote(
           result,
           (chunk) => {
+            setIsLoading(false);
             buffer += chunk;
             editorRef.current?.replaceContent(buffer);
           },
@@ -140,13 +143,16 @@ export default function ProjectEditorClient({
   };
 
   const handleNewDraft = async () => {
+    const currentContent = editorRef.current?.getHTML();
     setIsLoading(true);
     try {
-      const data = await createDraftClient(projectId);
-      setDraftIds((prev) => [...prev, data.id]);
-      setContent(null);
-      setSelectedDraftId(null);
-      await loadDraft(data.id);
+      const draftData = await createDraftClient(projectId, {
+        content: currentContent as string,
+      });
+      await loadDraft(draftData.id);
+      setDraftIds((prev) => [...prev, draftData.id]);
+      editorRef.current?.replaceContent(currentContent as string);
+      setSelectedDraftId(draftData.id);
     } catch (err) {
       console.error("[ProjectEditorClient] handleNewDraft error:", err);
     } finally {
@@ -160,7 +166,7 @@ export default function ProjectEditorClient({
         draftIds={draftIds}
         selectedDraftId={selectedDraftId}
         onSelectDraft={loadDraft}
-        onNewDraft={handleNewDraft}
+        onNewDraft={() => handleNewDraft()}
         isLoading={isLoading}
       />
       <div className="flex-1 overflow-auto">
