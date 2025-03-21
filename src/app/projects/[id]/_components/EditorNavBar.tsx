@@ -5,12 +5,14 @@ import CloudUploadIcon from "@icons/CloudUpload";
 import MicrophoneIcon from "@icons/Microphone";
 import CircleInfoIcon from "@icons/CircleInfo";
 import { PanelType } from "../ProjectEditorClient";
+import { useEffect } from "react";
 
 interface IconNavBarProps {
   isPanelOpen: boolean;
   activePanel: PanelType;
   setActivePanel: (panel: PanelType) => void;
   onOpenPanel: () => void;
+  showInfoPanel: boolean;
 }
 
 export default function IconNavBar({
@@ -18,7 +20,16 @@ export default function IconNavBar({
   activePanel,
   setActivePanel,
   onOpenPanel,
+  showInfoPanel,
 }: IconNavBarProps) {
+  // Default to info panel, fall back on text
+  useEffect(() => {
+    // If the info panel is shown, set it as the active panel
+    if (showInfoPanel) return setActivePanel("INFO");
+    // Otherwise, set the text panel as the active panel
+    setActivePanel("TEXT");
+  }, [showInfoPanel]);
+
   const icons = [
     {
       type: "TEXT",
@@ -32,10 +43,15 @@ export default function IconNavBar({
       type: "MIC",
       label: <MicrophoneIcon className="w-6 h-6 text-gray-600" />,
     },
-    {
-      type: "INFO",
-      label: <CircleInfoIcon className="w-6 h-6 text-gray-600" />,
-    },
+    // Show the info panel icon only if the transcript exists
+    ...(showInfoPanel
+      ? [
+          {
+            type: "INFO",
+            label: <CircleInfoIcon className="w-6 h-6 text-gray-600" />,
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -85,14 +85,10 @@ export default function ProjectEditorClient({
     }
   };
 
-  const handleTranscription = async (audioBlob: Blob) => {
+  const handleNewTranscript = async (newTranscript: string) => {
     setActivePanel("INFO");
     setIsLoading(true);
     try {
-      // Get audio from file
-      const result = await transcribeAudio(audioBlob);
-      if (!result) throw new Error("Transcription failed");
-
       const hasContent = editorRef.current?.hasContent?.() || false;
 
       let buffer = "";
@@ -102,14 +98,14 @@ export default function ProjectEditorClient({
         handleNewDraft().then((draftId) => {
           if (draftId) {
             updateDraft(draftId, {
-              transcript: result,
+              transcript: newTranscript,
             });
           }
-          setTranscript(result); // Needed to override empty transcript set when handling new draft
+          setTranscript(newTranscript); // Needed to override empty transcript set when handling new draft
         });
 
         await mergeDraft(
-          result,
+          newTranscript,
           editorRef.current?.getHTML(),
           (chunk) => {
             setIsLoading(false);
@@ -120,12 +116,12 @@ export default function ProjectEditorClient({
           "" // empty dictionary
         );
       } else {
-        setTranscript(result);
+        setTranscript(newTranscript);
         updateDraft(selectedDraftId as string, {
-          transcript: result,
+          transcript: newTranscript,
         });
         await generateNote(
-          result,
+          newTranscript,
           (chunk) => {
             setIsLoading(false);
             buffer += chunk;
@@ -146,7 +142,8 @@ export default function ProjectEditorClient({
     const sharedProps = {
       isLoading,
       transcript,
-      onGenerate: handleTranscription,
+      handleTranscription: handleNewTranscript,
+      selectedDraftId,
     };
 
     switch (activePanel) {
@@ -157,8 +154,9 @@ export default function ProjectEditorClient({
       case "INFO":
         return <LastTranscriptionPanel {...sharedProps} />;
       case "MIC":
-      default:
         return <VoicePanel {...sharedProps} />;
+      default:
+        return <TextPanel {...sharedProps} />;
     }
   };
 
@@ -208,6 +206,7 @@ export default function ProjectEditorClient({
         activePanel={activePanel}
         setActivePanel={setActivePanel}
         onOpenPanel={() => setIsPanelOpen(true)}
+        showInfoPanel={Boolean(transcript)}
       />
     </div>
   );

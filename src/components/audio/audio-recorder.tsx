@@ -4,19 +4,23 @@ import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import WaveformViewer from "./waveform-viewer";
 import { Mic, Pause, Play, StopCircle, RotateCcw, Loader } from "lucide-react";
+import { transcribeAudio } from "@lib/transcription/transcribe-audio";
+import { uploadToStorage } from "@lib/data/uploadToStorageClient";
 
 interface AudioRecorderProps {
-  onGenerate: (audioBlob: Blob) => void;
+  handleTranscription: (newTranscription: string) => void;
   isLoading?: boolean;
+  selectedDraftId: string | null;
 }
 
 export default function AudioRecorder({
-  onGenerate,
-  isLoading = false,
+  handleTranscription,
+  selectedDraftId,
 }: AudioRecorderProps) {
   const [reset, setReset] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const waveformRef = useRef<{ playPause: () => void }>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     status,
@@ -37,11 +41,27 @@ export default function AudioRecorder({
     }
   };
 
-  const handleGenerate = () => {
-    if (mediaBlobUrl && !isLoading) {
+  const handleGenerate = async () => {
+    setIsLoading(true);
+    if (mediaBlobUrl) {
+      // Get audio blob
       fetch(mediaBlobUrl)
         .then((res) => res.blob())
-        .then((blob) => onGenerate(blob));
+        .then(async (blob) => {
+          // Store file to storage
+          const file = new File([blob], "recording.webm", {
+            type: blob.type || "audio/webm",
+          });
+
+          uploadToStorage({ file, draftId: selectedDraftId as string }).then(
+            () => console.log("📁 Uploaded to storage")
+          );
+          // Get audio from blob
+          const result = await transcribeAudio(blob);
+          // Handle transcription
+          if (typeof result === "string") return handleTranscription(result);
+          setIsLoading(false);
+        });
     }
   };
 
