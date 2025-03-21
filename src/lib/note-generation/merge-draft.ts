@@ -1,4 +1,5 @@
 export async function mergeDraft(
+  // todo: Remove unused props
   input: string,
   existingDraft: any,
   onPartialHtml: (doc: any) => void,

@@ -9,7 +9,7 @@ interface DraftTabsProps {
   selectedDraftId: string | null;
   isLoading: boolean;
   onSelectDraft: (draftId: string) => Promise<void>;
-  onNewDraft: () => Promise<void>;
+  onNewDraft: () => Promise<string | undefined>;
 }
 
 export default function DraftTabs({

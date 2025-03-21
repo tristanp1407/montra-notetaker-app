@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+
 import Editor, { EditorHandle } from "@components/rich-text/editor";
 import { transcribeAudio } from "@lib/transcription/transcribe-audio";
 import { generateNote } from "@lib/note-generation/generate-note";
@@ -14,6 +15,8 @@ import TextPanel from "@components/project-editor/transcriptions-panels/TextPane
 import FileUploadPanel from "@components/project-editor/transcriptions-panels/FileUplaodPanel";
 import LastTranscriptionPanel from "@components/project-editor/transcriptions-panels/LastTranscriptionPanel";
 import VoicePanel from "@components/project-editor/transcriptions-panels/VoicePanel";
+import { updateDraft } from "@actions/draft/updateDraft";
+
 import DraftTabs from "./_components/DraftsTabs";
 import SidePanel from "./_components/SidePanel";
 import IconNavBar from "./_components/EditorNavBar";
@@ -68,30 +71,43 @@ export default function ProjectEditorClient({
   }, [projectId]);
 
   const loadDraft = async (draftId: string) => {
-    setIsLoading(true);
     setSelectedDraftId(draftId);
     try {
+      // Fetch draft data
       const data = await getDraftByIdClient(draftId);
-      editorRef.current?.replaceContent(data.content);
+      // Update editor content
+      editorRef.current?.replaceContent(data?.content ?? "<h1></h1>");
+      // Update transcript
+      setTranscript(data?.transcript ?? null);
     } catch (err) {
       console.error("[ProjectEditorClient] loadDraft error:", err);
       setContent("<h1></h1>");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleTranscription = async (audioBlob: Blob) => {
+    setActivePanel("INFO");
     setIsLoading(true);
     try {
+      // Get audio from file
       const result = await transcribeAudio(audioBlob);
       if (!result) throw new Error("Transcription failed");
 
-      setTranscript(result);
       const hasContent = editorRef.current?.hasContent?.() || false;
+
       let buffer = "";
+
       if (hasContent) {
-        handleNewDraft();
+        // Create a new draft then update it with the transcript
+        handleNewDraft().then((draftId) => {
+          if (draftId) {
+            updateDraft(draftId, {
+              transcript: result,
+            });
+          }
+          setTranscript(result); // Needed to override empty transcript set when handling new draft
+        });
+
         await mergeDraft(
           result,
           editorRef.current?.getHTML(),
@@ -101,9 +117,13 @@ export default function ProjectEditorClient({
             editorRef.current?.replaceContent(buffer);
           },
           () => {},
-          ""
+          "" // empty dictionary
         );
       } else {
+        setTranscript(result);
+        updateDraft(selectedDraftId as string, {
+          transcript: result,
+        });
         await generateNote(
           result,
           (chunk) => {
@@ -142,21 +162,21 @@ export default function ProjectEditorClient({
     }
   };
 
-  const handleNewDraft = async () => {
-    const currentContent = editorRef.current?.getHTML();
-    setIsLoading(true);
+  const handleNewDraft = async (): Promise<string | undefined> => {
+    const currentContent = editorRef.current?.getHTML() || "<h1></h1>";
+
     try {
       const draftData = await createDraftClient(projectId, {
-        content: currentContent as string,
+        content: currentContent,
       });
       await loadDraft(draftData.id);
       setDraftIds((prev) => [...prev, draftData.id]);
-      editorRef.current?.replaceContent(currentContent as string);
+      editorRef.current?.replaceContent(currentContent);
       setSelectedDraftId(draftData.id);
+      return draftData.id;
     } catch (err) {
       console.error("[ProjectEditorClient] handleNewDraft error:", err);
-    } finally {
-      setIsLoading(false);
+      return undefined;
     }
   };
 

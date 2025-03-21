@@ -6,7 +6,17 @@ export async function getProjectById(projectId: string) {
   try {
     const { data, error } = await supabase
       .from("projects")
-      .select("id, title, updated_at, drafts(id)")
+      .select(
+        `
+        id,
+        title,
+        updated_at,
+        drafts (
+          id,
+          created_at
+        )
+      `
+      )
       .eq("id", projectId)
       .single();
 
@@ -23,10 +33,13 @@ export async function getProjectById(projectId: string) {
       };
     }
 
-    // extract array of draft IDs
-    const draftIds = (data.drafts || []).map(
-      (draft: { id: string }) => draft.id
-    );
+    // Ensure drafts are sorted by created_at ASC
+    const draftIds = (data.drafts || [])
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )
+      .map((draft: { id: string }) => draft.id);
 
     return {
       data: {
