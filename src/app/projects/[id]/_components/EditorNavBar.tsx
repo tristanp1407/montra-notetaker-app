@@ -4,7 +4,6 @@ import TextIcon from "@icons/Text";
 import CloudUploadIcon from "@icons/CloudUpload";
 import MicrophoneIcon from "@icons/Microphone";
 import CircleInfoIcon from "@icons/CircleInfo";
-import SideBarInfoIcon from "@icons/SideBarInfo";
 import { PanelType } from "../ProjectEditorClient";
 
 interface IconNavBarProps {
@@ -20,47 +19,44 @@ export default function IconNavBar({
   setActivePanel,
   onOpenPanel,
 }: IconNavBarProps) {
+  const icons = [
+    {
+      type: "TEXT",
+      label: <TextIcon className="w-6 h-6 text-gray-600" />,
+    },
+    {
+      type: "UPLOAD",
+      label: <CloudUploadIcon className="w-6 h-6 text-gray-600" />,
+    },
+    {
+      type: "MIC",
+      label: <MicrophoneIcon className="w-6 h-6 text-gray-600" />,
+    },
+    {
+      type: "INFO",
+      label: <CircleInfoIcon className="w-6 h-6 text-gray-600" />,
+    },
+  ];
+
   return (
     <div className="flex flex-col w-12 border-l border-muted bg-gray-50 items-center py-4 space-y-3">
-      {isPanelOpen ? (
-        [
-          {
-            type: "TEXT",
-            label: <TextIcon className="w-6 h-6 text-gray-600" />,
-          },
-          {
-            type: "UPLOAD",
-            label: <CloudUploadIcon className="w-6 h-6 text-gray-600" />,
-          },
-          {
-            type: "MIC",
-            label: <MicrophoneIcon className="w-6 h-6 text-gray-600" />,
-          },
-          {
-            type: "INFO",
-            label: <CircleInfoIcon className="w-6 h-6 text-gray-600" />,
-          },
-        ].map(({ type, label }) => (
-          <button
-            key={type}
-            className={`text-xl p-1 rounded hover:bg-gray-200 cursor-pointer transition ${
-              activePanel === type ? "bg-gray-200 font-bold" : ""
-            }`}
-            onClick={() => setActivePanel(type as PanelType)}
-            title={type.toLowerCase()}
-          >
-            {label}
-          </button>
-        ))
-      ) : (
+      {icons.map(({ type, label }) => (
         <button
-          className="text-xl p-1 rounded hover:bg-gray-200 cursor-pointer"
-          onClick={onOpenPanel}
-          title="Open Panel"
+          key={type}
+          className={`text-xl p-1 rounded hover:bg-gray-200 cursor-pointer transition ${
+            isPanelOpen && activePanel === type ? "bg-gray-200 font-bold" : ""
+          }`}
+          onClick={() => {
+            setActivePanel(type as PanelType); // Set the active panel first
+            if (!isPanelOpen) {
+              onOpenPanel(); // Open the panel if it's not already open
+            }
+          }}
+          title={type.toLowerCase()}
         >
-          <SideBarInfoIcon className="w-6 h-6 text-gray-600" />
+          {label}
         </button>
-      )}
+      ))}
     </div>
   );
 }
