@@ -32,13 +32,14 @@ export const getDraftByIdClient = async (
 
 export const createDraftClient = async (
   projectId: string,
-  data: Partial<Draft>
+  data: Partial<Draft>,
+  draftId?: string
 ) => {
   try {
     const res = await fetch(`/api/drafts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId, data }),
+      body: JSON.stringify({ projectId, data, draftId }),
     });
 
     if (!res.ok) {

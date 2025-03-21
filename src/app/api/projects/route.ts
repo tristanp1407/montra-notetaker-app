@@ -4,8 +4,8 @@ import { getProjectById } from "@actions/project/getProjectById";
 
 export async function POST(req: Request) {
   try {
-    const { id } = await req.json();
-    const result = await createProject(id);
+    const { projectId } = await req.json();
+    const result = await createProject(projectId);
 
     return NextResponse.json(result);
   } catch (err) {

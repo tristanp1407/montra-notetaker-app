@@ -40,7 +40,7 @@ export async function createProject(projectId: string) {
     }
 
     // Step 2: Create initial draft using extracted function
-    const draftRes = await createDraft(projectData.id);
+    const draftRes = await createDraft(projectData.id, undefined, {});
 
     if (draftRes.error || !draftRes.data?.id) {
       return {

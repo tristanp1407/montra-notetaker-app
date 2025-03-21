@@ -6,16 +6,15 @@ import WaveformViewer from "./waveform-viewer";
 import { Mic, Pause, Play, StopCircle, RotateCcw, Loader } from "lucide-react";
 import { transcribeAudio } from "@lib/transcription/transcribe-audio";
 import { uploadToStorage } from "@lib/data/uploadToStorageClient";
+import { updateDraft } from "@actions/draft/updateDraft";
 
 interface AudioRecorderProps {
-  handleTranscription: (newTranscription: string) => void;
+  handleTranscription: (file: File) => void;
   isLoading?: boolean;
-  selectedDraftId: string | null;
 }
 
 export default function AudioRecorder({
   handleTranscription,
-  selectedDraftId,
 }: AudioRecorderProps) {
   const [reset, setReset] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -42,26 +41,22 @@ export default function AudioRecorder({
   };
 
   const handleGenerate = async () => {
+    if (!mediaBlobUrl) return;
     setIsLoading(true);
-    if (mediaBlobUrl) {
-      // Get audio blob
-      fetch(mediaBlobUrl)
-        .then((res) => res.blob())
-        .then(async (blob) => {
-          // Store file to storage
-          const file = new File([blob], "recording.webm", {
-            type: blob.type || "audio/webm",
-          });
 
-          uploadToStorage({ file, draftId: selectedDraftId as string }).then(
-            () => console.log("📁 Uploaded to storage")
-          );
-          // Get audio from blob
-          const result = await transcribeAudio(blob);
-          // Handle transcription
-          if (typeof result === "string") return handleTranscription(result);
-          setIsLoading(false);
-        });
+    try {
+      const res = await fetch(mediaBlobUrl);
+      const blob = await res.blob();
+
+      const file = new File([blob], "recording.webm", {
+        type: blob.type || "audio/webm",
+      });
+
+      handleTranscription(file);
+    } catch (err) {
+      console.error("❌ Error during audio generation flow:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 

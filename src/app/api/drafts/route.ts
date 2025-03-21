@@ -59,7 +59,12 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { projectId, data }: { projectId: string; data: Draft } = body;
+
+    const {
+      projectId,
+      data,
+      draftId,
+    }: { projectId: string; draftId: string; data: Draft } = body;
 
     if (!projectId) {
       return Response.json(
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await createDraft(projectId, data);
+    const result = await createDraft(projectId, draftId, data);
 
     if (result.error) {
       return Response.json(

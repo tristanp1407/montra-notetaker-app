@@ -5,21 +5,34 @@ import { createClient } from "@utils/supabase/server";
 
 export async function createDraft(
   projectId: string,
+  draftId: string | undefined,
   draftData: Partial<Draft>
 ) {
+  console.log("🚀🚀 [createDraft.ts] draftId", draftId);
   console.log("[createDraft] Creating draft for project:", projectId);
   const supabase = await createClient();
+
+  // Build the payload
+  const payload = {
+    id: draftId,
+    project_id: projectId,
+    content: draftData?.content || "<h1></h1>",
+    file_url: draftData?.file_url || undefined,
+    file_type: draftData?.file_type || undefined,
+    transcript: draftData?.transcript || undefined,
+  };
+
+  if (draftId) {
+    console.log(`[createDraft] Provided draftId: ${draftId}`);
+    payload.id = draftId;
+  } else {
+    console.log("[createDraft] No draftId provided; generating a new one");
+  }
 
   try {
     const { data, error } = await supabase
       .from("drafts")
-      .insert({
-        project_id: projectId,
-        content: draftData?.content || "<h1></h1>",
-        file_url: draftData?.file_url || null,
-        file_type: draftData?.file_type || null,
-        transcript: draftData?.transcript || null,
-      })
+      .insert(payload)
       .select("id")
       .single();
 
@@ -32,6 +45,7 @@ export async function createDraft(
       };
     }
 
+    console.log("[createDraft] Draft created with id:", data.id);
     return {
       data,
       status: 200,

@@ -1,11 +1,11 @@
 "use client";
 
-export const createProjectClient = async (id: string) => {
+export const createProjectClient = async (projectId: string) => {
   try {
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ projectId }),
     });
 
     if (!res.ok) {
