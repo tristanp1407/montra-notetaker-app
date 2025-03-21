@@ -16,11 +16,11 @@ import FileUploadPanel from "@components/project-editor/transcriptions-panels/Fi
 import LastTranscriptionPanel from "@components/project-editor/transcriptions-panels/LastTranscriptionPanel";
 import VoicePanel from "@components/project-editor/transcriptions-panels/VoicePanel";
 import { updateDraft } from "@actions/draft/updateDraft";
+import { uploadToStorage } from "@lib/data/uploadToStorageClient";
 
 import DraftTabs from "./_components/DraftsTabs";
 import SidePanel from "./_components/SidePanel";
 import IconNavBar from "./_components/EditorNavBar";
-import { uploadToStorage } from "@lib/data/uploadToStorageClient";
 
 export type PanelType = "TEXT" | "UPLOAD" | "MIC" | "INFO";
 
@@ -174,9 +174,7 @@ export default function ProjectEditorClient({
       }
     } catch (err) {
       console.error("[ProjectEditorClient] Transcription error:", err);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
+      alert("We couldn't transcribe your audio. Please try again.");
     }
   };
 

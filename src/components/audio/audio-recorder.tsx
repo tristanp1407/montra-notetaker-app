@@ -4,13 +4,10 @@ import React, { useCallback, useRef, useState } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import WaveformViewer from "./waveform-viewer";
 import { Mic, Pause, Play, StopCircle, RotateCcw, Loader } from "lucide-react";
-import { transcribeAudio } from "@lib/transcription/transcribe-audio";
-import { uploadToStorage } from "@lib/data/uploadToStorageClient";
-import { updateDraft } from "@actions/draft/updateDraft";
+import WaveformLoader from "@components/project-editor/waveform-loader";
 
 interface AudioRecorderProps {
-  handleTranscription: (file: File) => void;
-  isLoading?: boolean;
+  handleTranscription: (file: File) => Promise<void>;
 }
 
 export default function AudioRecorder({
@@ -42,7 +39,6 @@ export default function AudioRecorder({
 
   const handleGenerate = async () => {
     if (!mediaBlobUrl) return;
-    setIsLoading(true);
 
     try {
       const res = await fetch(mediaBlobUrl);
@@ -52,7 +48,10 @@ export default function AudioRecorder({
         type: blob.type || "audio/webm",
       });
 
-      handleTranscription(file);
+      handleTranscription(file).then(() => {
+        console.log("🚀🚀🚀🚀🚀");
+        setIsLoading(false);
+      });
     } catch (err) {
       console.error("❌ Error during audio generation flow:", err);
     } finally {
@@ -77,18 +76,15 @@ export default function AudioRecorder({
       <div className="relative w-[250px] h-20 bg-gray-100 border rounded overflow-hidden">
         {mediaBlobUrl ? (
           <WaveformViewer audioUrl={mediaBlobUrl} ref={waveformRef} />
-        ) : (
-          <div className="w-full h-full" />
-        )}
+        ) : status !== "recording" ? (
+          <div className="flex items-center justify-center h-full w-full">
+            <div className="w-full border-t-2 border-dotted border-blue-500" />
+          </div>
+        ) : null}
 
         {status === "recording" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-red-500 font-semibold text-xl">
-                Recording
-              </span>
-            </div>
+            <WaveformLoader />
           </div>
         )}
 
